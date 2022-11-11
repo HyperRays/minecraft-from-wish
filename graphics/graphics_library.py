@@ -5,6 +5,7 @@ from dataclasses import dataclass
 # import numpy as np
 # hide the pygame support prompt
 # the enviroment variable didn't work for me
+# do support tho
 import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
