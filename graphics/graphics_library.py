@@ -5,11 +5,15 @@ from dataclasses import dataclass
 import numpy as np
 import pygame
 from pygame.locals import *
+import copy
 
 @dataclass(slots= True)
 class Image:
     image: pygame.Surface
     name: str
+
+    def copy(self):
+        return Image(image=self.image.copy(), name= copy.deepcopy(self.name))
 
 class fallbackDict(dict):
     """
@@ -33,6 +37,9 @@ class PygameBackend:
     screen: pygame.Surface | None = None
     backend = "pygame"
 
+    # background to set on every flip
+    background = None
+
     @staticmethod
     def load_texture(name):
         # currently works only for pngs
@@ -44,28 +51,43 @@ class PygameBackend:
                 image = image.convert()
             else:
                 image = image.convert_alpha()
+            return image
         except FileNotFoundError:
             logging.error(f"Cannot load image: {fullname}")
-        return image
+            return None
     
 
     @classmethod
     def event_loop(cls, update_closure: Any) -> None:
-        update_closure()
+        while True:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    return
+
+            cls.screen.blit(cls.background, (0, 0))
+            update_closure(cls)
+            logging.debug("Updated Frame")
+            pygame.display.flip()
     
     @classmethod
     def init(cls, size, title):
+
         pygame.init()   
         cls.screen = pygame.display.set_mode(size)
         pygame.display.set_caption(title)
 
+        #Fill Background
+        cls.background = pygame.Surface(cls.screen.get_size())
+        cls.background = cls.background.convert()
+        cls.background.fill((250, 250, 250))
+
 
 class GraphicsObject(PygameBackend):
-    objects = np.array(object = [], dtype = object)
-    texturess = np.array(object = [], dtype = object)
+    objects = list()
+    textures: list[Image] = list()
 
     def __init__(self) -> None:
-        self.objects = np.append(self.objects, [self])
+        self.objects += [self]
 
     @classmethod
     def init(cls, size: tuple[float,float], title: str) -> None:
@@ -78,11 +100,6 @@ class GraphicsObject(PygameBackend):
 
         super(GraphicsObject, cls).init(size,title)
         logging.info(f"successfully created window")
-
-        # Fill background
-        background = pygame.Surface(cls.screen.get_size())
-        background = background.convert()
-        background.fill((250, 250, 250))
     
     def update_callback_pygame(self) -> None:
         for object in self.objects:
@@ -93,15 +110,18 @@ class GraphicsObject(PygameBackend):
         """
         load in texture, and return the id
         """
-        cls.textures = np.append(cls.textures, [Image(image=cls.load_texture(name), name=name)])
+        cls.textures += [Image(image=cls.load_texture(name), name=name)]
         return len(cls.textures)-1
 
     @classmethod
     def run(cls) -> None:
         match cls.backend:
-            case ["pygame"]:
+            case "pygame":
                 callback_fn = cls.update_callback_pygame
             case unimpl_backend:
                 raise NotImplementedError(f"The backend {unimpl_backend} has not been implemented yet")
         cls.event_loop(callback_fn)
 
+    #placeholder update fn
+    #runs every renderpass/flip
+    def update(*_): ...

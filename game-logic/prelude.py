@@ -1,3 +1,5 @@
 import sys
 sys.path.append("..")
-from graphics import graphics_library
+from graphics.graphics_library import GraphicsObject
+import pygame
+from pygame.locals import *
