@@ -2,13 +2,13 @@ import os
 from typing import Any
 import logging
 from dataclasses import dataclass
+import numpy as np
 import pygame
 from pygame.locals import *
 
-@dataclass
+@dataclass(slots= True)
 class Image:
-    __slots__ = ("image", "name")
-    image: Any
+    image: pygame.Surface
     name: str
 
 class fallbackDict(dict):
@@ -30,7 +30,7 @@ class fallbackDict(dict):
         self.fallback = fallback
 
 class PygameBackend:
-    screen: Any|None = None
+    screen: pygame.Surface | None = None
     backend = "pygame"
 
     @staticmethod
@@ -39,27 +39,33 @@ class PygameBackend:
         fullname = os.path.join("../assets", name)
         try:
             image = pygame.image.load(fullname)
+            # checks if rgba format is met, otherwise adds a channel
             if image.get_alpha() is None:
                 image = image.convert()
             else:
                 image = image.convert_alpha()
         except FileNotFoundError:
-            print(f"Cannot load image: {fullname}")
-            raise SystemExit
-        return image, image.get_rect()
+            logging.error(f"Cannot load image: {fullname}")
+        return image
     
 
     @classmethod
     def event_loop(cls, update_closure: Any) -> None:
         update_closure()
+    
+    @classmethod
+    def init(cls, size, title):
+        pygame.init()   
+        cls.screen = pygame.display.set_mode(size)
+        pygame.display.set_caption(title)
 
 
 class GraphicsObject(PygameBackend):
-    objects: list[Any] = list()
-    textures: list[Image] = list()
+    objects = np.array(object = [], dtype = object)
+    texturess = np.array(object = [], dtype = object)
 
     def __init__(self) -> None:
-        self.objects += [self]
+        self.objects = np.append(self.objects, [self])
 
     @classmethod
     def init(cls, size: tuple[float,float], title: str) -> None:
@@ -70,10 +76,7 @@ class GraphicsObject(PygameBackend):
         cls.size = size
         logging.info(f"creating window with size (height:{size[0]}, width:{size[1]})")
 
-        pygame.init()   
-        cls.screen = pygame.display.set_mode(size)
-        pygame.display.set_caption(title)
-
+        super(GraphicsObject, cls).init(size,title)
         logging.info(f"successfully created window")
 
         # Fill background
@@ -86,6 +89,14 @@ class GraphicsObject(PygameBackend):
             object.update()
 
     @classmethod
+    def add_texture(cls, name) -> int:
+        """
+        load in texture, and return the id
+        """
+        cls.textures = np.append(cls.textures, [Image(image=cls.load_texture(name), name=name)])
+        return len(cls.textures)-1
+
+    @classmethod
     def run(cls) -> None:
         match cls.backend:
             case ["pygame"]:
@@ -93,3 +104,4 @@ class GraphicsObject(PygameBackend):
             case unimpl_backend:
                 raise NotImplementedError(f"The backend {unimpl_backend} has not been implemented yet")
         cls.event_loop(callback_fn)
+

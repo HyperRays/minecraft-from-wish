@@ -1,2 +1,4 @@
 graphics/activate_anaconda.bat
 .vscode
+graphics/__pycache__/__init__.cpython-310.pyc
+graphics/__pycache__/graphics_library.cpython-310.pyc
