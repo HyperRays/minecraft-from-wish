@@ -1,4 +1,8 @@
+# soham's custom script (bc of school laptop being old)
 graphics/activate_anaconda.bat
+
+#hide vscode config
 .vscode
-graphics/__pycache__/__init__.cpython-310.pyc
-graphics/__pycache__/graphics_library.cpython-310.pyc
+
+# python binary
+*.pyc
