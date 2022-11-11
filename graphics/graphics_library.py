@@ -2,9 +2,13 @@ import os
 from typing import Any
 import logging
 from dataclasses import dataclass
-import numpy as np
-import pygame
-from pygame.locals import *
+# import numpy as np
+# hide the pygame support prompt
+# the enviroment variable didn't work for me
+import contextlib
+with contextlib.redirect_stdout(None):
+    import pygame
+    from pygame.locals import *
 import copy
 
 @dataclass(slots= True)
