@@ -1,3 +1,8 @@
+"""
+this is basically just copy pasted from pygame (as usual)
+"""
+
+
 import pygame
 from pygame.locals import *
 
