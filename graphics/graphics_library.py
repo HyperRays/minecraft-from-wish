@@ -3,6 +3,7 @@ from typing import Any
 import logging
 from dataclasses import dataclass
 # import numpy as np
+
 # hide the pygame support prompt
 # the enviroment variable didn't work for me
 # do support tho
@@ -45,9 +46,10 @@ class PygameBackend:
     # background to set on every flip
     background = None
 
+    camera = [0,0]
+
     @staticmethod
     def load_texture(name):
-        # currently works only for pngs
         fullname = os.path.join("../assets", name)
         try:
             image = pygame.image.load(fullname)
