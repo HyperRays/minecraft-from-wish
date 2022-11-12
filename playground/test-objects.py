@@ -1,6 +1,9 @@
 """
 test if inheriting GraphicsObject will work and display correctly
 """
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))
 from dataclasses import dataclass
 from prelude import *
 
@@ -14,14 +17,12 @@ class vec2d:
 
 
 class Ball(GraphicsObject):
-    __texture = GraphicsObject.add_texture(".jpg") 
+    __texture = GraphicsObject.add_texture("test_snow.png") 
     (a,b) = store.textures[__texture].image.get_size()
     ratio = a/b
-    del a
-    del b
     store.textures[__texture].image = pygame.transform.scale(store.textures[__texture].image, (100,100/ratio))
-    del ratio
-
+    del a,b,ratio
+    
     def __init__(self) -> None:
         super().__init__()
         self.texture = self.textures[self.__texture].copy()
