@@ -3,22 +3,30 @@ test if inheriting GraphicsObject will work and display correctly
 """
 from dataclasses import dataclass
 from prelude import *
-import numpy as np
 
 
-GraphicsObject.init((300,300),"test objects")
+window.init((300,300),"test objects")
+
 @dataclass(slots=True)
 class vec2d:
     x: int
     y: int
 
+
 class Ball(GraphicsObject):
-    # __dtype = np.dtype({"names": ["x","y"], "formats": ["f4","f4"]})
-    __texture = GraphicsObject.add_texture("hi-res-stickman.jpg")
+    __texture = GraphicsObject.add_texture(".jpg") 
+    (a,b) = store.textures[__texture].image.get_size()
+    ratio = a/b
+    del a
+    del b
+    store.textures[__texture].image = pygame.transform.scale(store.textures[__texture].image, (100,100/ratio))
+    del ratio
+
     def __init__(self) -> None:
         super().__init__()
         self.texture = self.textures[self.__texture].copy()
-        self.position = vec2d(self.size[0]/2,self.size[1]/2)
+        (h,w) = self.texture.image.get_size()
+        self.position = vec2d((self.size[0]-h)/2,(self.size[1]-w)/2)
     
 
     def render(self):
@@ -31,4 +39,4 @@ class Ball(GraphicsObject):
 Ball()
 
 
-GraphicsObject.run()
+window.run()
