@@ -43,7 +43,6 @@ class PygameBackend:
     screen: pygame.Surface | None = None
     backend = "pygame"
 
-    # background to set on every flip
     background = None
 
     camera = [0,0]
@@ -65,6 +64,7 @@ class PygameBackend:
     
 
     @classmethod
+    # the render loop
     def event_loop(cls, update_closure: Any) -> None:
         while True:
             for event in pygame.event.get():
@@ -72,6 +72,7 @@ class PygameBackend:
                     return
 
             cls.screen.blit(cls.background, (0, 0))
+            #the update closure (function) is passed by the GraphicsObject function
             update_closure(cls)
             logging.debug("Updated Frame")
             pygame.display.flip()
@@ -113,7 +114,7 @@ class GraphicsObject(PygameBackend):
             object.update()
 
     @classmethod
-    def add_texture(cls, name) -> int:
+    def add_texture(cls, name: str) -> int:
         """
         load in texture, and return the id
         """
