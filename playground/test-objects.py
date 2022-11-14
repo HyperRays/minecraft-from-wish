@@ -4,6 +4,7 @@ test if inheriting GraphicsObject will work and display correctly
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))
+sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
 from dataclasses import dataclass
 from prelude import *
 
