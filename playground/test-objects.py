@@ -17,7 +17,7 @@ class vec2d:
     y: int
 
 
-class Ball(GraphicsObject):
+class Square(GraphicsObject):
     __texture = GraphicsObject.add_texture("test_snow.png") 
     (a,b) = store.textures[__texture].image.get_size()
     ratio = a/b
@@ -36,9 +36,11 @@ class Ball(GraphicsObject):
     
     def update(self):
         self.render()
+        self.camera[0] += 0.1
+        self.camera[1] += 0.1
 
 
-Ball()
+Square()
 
 
 window.run()
