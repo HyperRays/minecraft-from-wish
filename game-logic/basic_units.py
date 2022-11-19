@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-@dataclass(slots=True)
+@dataclass(slots=True, unsafe_hash=True)
 class vec2d:
     x: int
     y: int
