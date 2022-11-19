@@ -26,6 +26,10 @@ class GraphicsObject(PygameBackend):
     def update_callback_pygame(self) -> None:
         for object in self.objects:
             object.update()
+    
+    def input_callback_pygame(self, keys) -> None:
+        for object in self.objects:
+            object.input(keys)
 
     @classmethod
     def add_texture(cls, name: str) -> int:
@@ -39,11 +43,14 @@ class GraphicsObject(PygameBackend):
     def run(cls) -> None:
         match cls.backend:
             case "pygame":
-                callback_fn = cls.update_callback_pygame
+                update_callback_fn = cls.update_callback_pygame
+                input_callback_fn = cls.input_callback_pygame
             case unimpl_backend:
                 raise NotImplementedError(f"The backend {unimpl_backend} has not been implemented yet")
-        cls.event_loop(callback_fn)
+        cls.event_loop(update_callback_fn, input_callback_fn)
 
     #placeholder update fn
     #runs every renderpass/flip
     def update(*_): ...
+
+    def input(*_): ...
