@@ -1,3 +1,7 @@
+"""
+File for basic units
+"""
+
 from dataclasses import dataclass
 @dataclass(slots=True, unsafe_hash=True)
 class vec2d:
