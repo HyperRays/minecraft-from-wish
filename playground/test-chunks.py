@@ -2,9 +2,8 @@ import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))
 sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
-from dataclasses import dataclass
 from prelude import *
-from chunk_system import Chunk
+from chunks_module import Chunk
 
 import time
 
@@ -29,10 +28,10 @@ class Timed:
         self.total_time = 0
 
 
-six_exe = Timed(1_000_000)
+timer = Timed(1_000_000)
 
 class Square(GraphicsObject):
-    sq_size = 10
+    sq_size = 17
 
     def __init__(self, position: vec2d) -> None:
         self.position = position
@@ -44,8 +43,8 @@ class Square(GraphicsObject):
     def update(self):
         self.render()
 
-class Snow(Square):
-    texture = GraphicsObject.add_texture("test_snow.png") 
+class Ice(Square):
+    texture = GraphicsObject.add_texture("ice_block.png") 
     (a,b) = store.textures[texture].image.get_size()
     ratio = a/b
     (w,h) = (Square.sq_size,Square.sq_size/ratio)
@@ -55,7 +54,7 @@ class Snow(Square):
     
 
 class Grass(Square):
-    texture = GraphicsObject.add_texture("test_grass.png") 
+    texture = GraphicsObject.add_texture("grass_block.png") 
     (a,b) = store.textures[texture].image.get_size()
     ratio = a/b
     (w,h) = (Square.sq_size,Square.sq_size/ratio)
@@ -64,7 +63,7 @@ class Grass(Square):
 
 
 class Dirt(Square):
-    texture = GraphicsObject.add_texture("test_dirt.png") 
+    texture = GraphicsObject.add_texture("dirt_block.png") 
     (a,b) = store.textures[texture].image.get_size()
     ratio = a/b
     (w,h) = (Square.sq_size,Square.sq_size/ratio)
@@ -95,10 +94,10 @@ class Player(GraphicsObject):
 
 
         speed = 10
-        if six_exe.reached(): six_exe.reset()
-        six_exe.poll()
+        if timer.reached(): timer.reset()
+        timer.poll()
 
-        if six_exe.reached():
+        if timer.reached():
             if keys[self.characters["s"]]:
                 self.position.y += speed
                 self.camera[1] += speed
@@ -120,7 +119,7 @@ class Player(GraphicsObject):
 
 def over_surface(x,y, chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
-    coordinates = vec2d(x= (coordinates_glob.x*Snow.h), y= (coordinates_glob.y*Snow.w))
+    coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
     if y > 5:
         return Dirt(coordinates)
     elif y == 5:
@@ -128,7 +127,7 @@ def over_surface(x,y, chunk):
 
 def under_surface(x,y,chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
-    coordinates = vec2d(x= (coordinates_glob.x*Snow.h), y= (coordinates_glob.y*Snow.w))
+    coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
     return Dirt(coordinates)
 
 Player(vec2d(0,0))
