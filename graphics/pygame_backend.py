@@ -69,7 +69,7 @@ class PygameBackend:
 
     @staticmethod
     def load_texture(name):
-        fullname = os.path.join("../assets", name)
+        fullname = os.path.join("../assets/images", name)
         try:
             image = pygame.image.load(fullname)
             # checks if rgba format is met, otherwise adds a channel

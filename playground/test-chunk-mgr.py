@@ -58,6 +58,14 @@ class Ice(Square):
     store.textures[texture].image = pygame.transform.scale(store.textures[texture].image, (w,h))
     del a,b,ratio
 
+class Sand(Square):
+    texture = GraphicsObject.add_texture("sand_block.png") 
+    (a,b) = store.textures[texture].image.get_size()
+    ratio = a/b
+    (w,h) = (Square.sq_size,Square.sq_size/ratio)
+    store.textures[texture].image = pygame.transform.scale(store.textures[texture].image, (w,h))
+    del a,b,ratio
+
     
 
 class Grass(Square):
@@ -82,18 +90,18 @@ chunk_manager = ChunkManager()
 
 
 
-def chekered(x,y, chunk):
+def test_render(x,y, chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
     if -coordinates_glob.y < 0:
-        return Dirt(coordinates)
+        return Sand(coordinates)
     if -coordinates_glob.y == 0:
         return Grass(coordinates)
 
 
 for a in range(-10,10):
     for b in range(-10,10):
-        chunk_manager.add_chunk(Chunk(vec2d(a,b), chekered))
+        chunk_manager.add_chunk(Chunk(vec2d(a,b), test_render))
 
 
 class Player(GraphicsObject):
