@@ -8,7 +8,7 @@ window.init((300,300),"test objects")
 
 class Chunk(GraphicsObject):
     # all chunks are squares, and predefined sizes
-    __chunk_size = 16
+    _chunk_size = 16
 
 
     # chunks have their own x,y coordinates, in the chunks there is another grid
@@ -20,7 +20,7 @@ class Chunk(GraphicsObject):
     def __init__(self, vec: vec2d, mapping_func) -> None:
         # chunks do not get immediately added to the objects list, but get loaded in 
         # dynamicaly depending on the players coordinates
-        self.internal_objects = [[[None] for _ in range(self.__chunk_size)] for _ in range(self.__chunk_size)]
+        self.internal_objects = [[[None] for _ in range(self._chunk_size)] for _ in range(self._chunk_size)]
         assert(vec.x%1==0 and vec.y%1==0)
         self.position = vec
         self.on_load(mapping_func)
@@ -31,9 +31,9 @@ class Chunk(GraphicsObject):
         global coordinates based on current chunk and coordinates
         """
         # a bit of branchless programming
-        return vec2d(   x= self.__chunk_size*self.position.x+vec.x,
+        return vec2d(   x= self._chunk_size*self.position.x+vec.x,
 
-                        y = self.__chunk_size*self.position.y+vec.y
+                        y = self._chunk_size*self.position.y*-1+vec.y
                     )
     
     def get_local_position(self, vec: vec2d):
@@ -41,7 +41,7 @@ class Chunk(GraphicsObject):
         gets chunk coordinates/key and local coordinates
         """
 
-        vec2d(x=vec.x%self.__chunk_size ,y= vec.y%self.__chunk_size)
+        vec2d(x=vec.x%self._chunk_size ,y= vec.y%self._chunk_size)
     
     def update(self):
         for object in list(itertools.chain(*self.internal_objects)):

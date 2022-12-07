@@ -47,6 +47,7 @@ class GraphicsObject(PygameBackend):
                 input_callback_fn = cls.input_callback_pygame
             case unimpl_backend:
                 raise NotImplementedError(f"The backend {unimpl_backend} has not been implemented yet")
+        
         cls.event_loop(update_callback_fn, input_callback_fn)
 
     #placeholder update fn

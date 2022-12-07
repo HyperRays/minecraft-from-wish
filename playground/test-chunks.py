@@ -10,25 +10,7 @@ import time
 window.init((700,700),"test chunks")
 window.camera = [-window.size[0]/2,-window.size[1]/2]
 
-class Timed:
-    def __init__(self, target_ns) -> None:
-        self.current_time = time.process_time_ns()
-        self.target_time = target_ns
-        self.total_time = 0
-    
-    def poll(self) -> None:
-        new_time = time.process_time_ns()
-        self.total_time += new_time - self.current_time
-        self.current_time = new_time
-    
-    def reached(self) -> bool:
-        return self.total_time >= self.target_time
-    
-    def reset(self) -> None:
-        self.total_time = 0
 
-
-timer = Timed(1_000_000)
 
 class Square(GraphicsObject):
     sq_size = 17
@@ -130,6 +112,7 @@ def under_surface(x,y,chunk):
     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
     return Dirt(coordinates)
 
+
 Player(vec2d(0,0))
 
 for a in range(10):
@@ -140,4 +123,3 @@ for a in range(10):
         Chunk(vec2d(a,b), under_surface)
 
 window.run()
-

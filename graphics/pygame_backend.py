@@ -2,8 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 import os
-# import numpy as np
-
+import time
 # hide the pygame support prompt
 # the enviroment variable didn't work for me
 # do support tho
@@ -13,6 +12,23 @@ with contextlib.redirect_stdout(None):
     from pygame.locals import *
     
 import copy
+
+class _Timed:
+    def __init__(self, target_ns) -> None:
+        self.current_time = time.process_time_ns()
+        self.target_time = target_ns
+        self.total_time = 0
+    
+    def poll(self) -> None:
+        new_time = time.process_time_ns()
+        self.total_time += new_time - self.current_time
+        self.current_time = new_time
+    
+    def reached(self) -> bool:
+        return self.total_time >= self.target_time
+    
+    def reset(self) -> None:
+        self.total_time = self.total_time - self.target_time
 
 @dataclass(slots= True)
 class Image:
@@ -70,6 +86,7 @@ class PygameBackend:
     @classmethod
     # the render loop
     def event_loop(cls, update_closure: Any, input_closure: Any) -> None:
+        timer = _Timed(16_000_000)
         while True:
             keys = pygame.key.get_pressed()
             for event in pygame.event.get():
@@ -80,9 +97,13 @@ class PygameBackend:
             # the update closure (function) is passed by the GraphicsObject function
             update_closure(cls)
             input_closure(cls, keys)
-            logging.debug("Updated Frame")
-            pygame.display.flip()
-    
+            timer.poll()
+            if timer.reached():
+                logging.debug("Updated Frame")
+                pygame.display.flip()
+                timer.reset()
+            
+
     @classmethod
     def init(cls, size, title):
 
