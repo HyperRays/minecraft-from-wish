@@ -6,3 +6,4 @@ graphics/activate_anaconda.bat
 
 # python binary
 *.pyc
+activate-conda.bat
