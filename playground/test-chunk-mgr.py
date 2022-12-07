@@ -6,12 +6,10 @@ sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
 from prelude import *
 from chunks_module import Chunk
 from chunk_manager import ChunkManager
-import math
 
 
 
 window.init((700,700),"test chunks")
-window.camera = [-window.size[0]/2,-window.size[1]/2]
 
 #https://stackoverflow.com/questions/14822184/is-there-a-ceiling-equivalent-of-operator-in-python
 def ceildiv(a, b):
@@ -128,20 +126,18 @@ class Player(GraphicsObject):
         if timer.reached():
             
             if keys[self.characters["s"]]:
-                self.position.y -= speed
                 self.camera[1] -= speed
+
             elif keys[self.characters["w"]]:
-                self.position.y += speed
                 self.camera[1] += speed
             
             if keys[self.characters["d"]]:
-                self.position.x += speed
                 self.camera[0] += speed
+
             elif keys[self.characters["a"]]:
-                self.position.x -= speed
                 self.camera[0] -= speed
             
-            self.position = vec2d(self.camera[0],self.camera[1])
+            self.position = vec2d(self.camera[0],self.camera[1])-vec2d(-window.size[0]/2,-window.size[1]/2)
             
             chunk_total_size = Square.sq_size*Chunk._chunk_size
 
