@@ -137,7 +137,7 @@ class Player(GraphicsObject):
             elif keys[self.characters["a"]]:
                 self.camera[0] -= speed
             
-            self.position = vec2d(self.camera[0],self.camera[1])-vec2d(-window.size[0]/2,-window.size[1]/2)
+            self.position = vec2d(self.camera[0],self.camera[1])-vec2d(-window.size[0]/2+self.w/2,-window.size[1]/2+self.w/2)
             
             chunk_total_size = Square.sq_size*Chunk._chunk_size
 
