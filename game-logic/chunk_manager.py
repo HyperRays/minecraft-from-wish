@@ -6,9 +6,9 @@ from chunks_module import Chunk
 
 def acending_range(a,b) -> range:
     if a > b:
-        return range(b,a)
+        return range(int(b),int(a))
     else:
-        return range(a,b)
+        return range(int(a),int(b))
 
 class ChunkManager(GraphicsObject):
 

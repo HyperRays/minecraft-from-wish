@@ -11,7 +11,7 @@ import math
 
 
 window.init((700,700),"test chunks")
-window.camera = [0,0]
+window.camera = [-window.size[0]/2,-window.size[1]/2]
 
 #https://stackoverflow.com/questions/14822184/is-there-a-ceiling-equivalent-of-operator-in-python
 def ceildiv(a, b):
@@ -82,34 +82,15 @@ class Dirt(Square):
 
 chunk_manager = ChunkManager()
 
-# def over_surface(x,y, chunk):
-#     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
-#     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
-#     if y > 5:
-#         return Dirt(coordinates)
-#     elif y == 5:
-#         return Grass(coordinates)
-
-# def under_surface(x,y,chunk):
-#     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
-#     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
-#     return Dirt(coordinates)
-
-# for a in range(10):
-#     chunk_manager.add_chunk(Chunk(vec2d(a,0), over_surface))
-
-# for a in range(10):
-#     for b in range(1,10):
-#         chunk_manager.add_chunk(Chunk(vec2d(a,-b), under_surface))
 
 
 def chekered(x,y, chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
-    if y & 1 == 0 and x & 1 == 0:
+    if -coordinates_glob.y < 0:
         return Dirt(coordinates)
-    else:
-        return Ice(coordinates)
+    if -coordinates_glob.y == 0:
+        return Grass(coordinates)
 
 
 for a in range(-10,10):
@@ -162,14 +143,13 @@ class Player(GraphicsObject):
             
             self.position = vec2d(self.camera[0],self.camera[1])
             
-            if keys[self.characters["escape"]]:
-                chunk_total_size = Square.sq_size*Chunk._chunk_size
+            chunk_total_size = Square.sq_size*Chunk._chunk_size
 
-                bounds_window = vec2d(ceildiv(window.size[0],chunk_total_size)+1, ceildiv(window.size[1],chunk_total_size)+1)
-                min_bounds = vec2d(ceildiv(window.camera[0],chunk_total_size)-1, ceildiv(window.camera[1],chunk_total_size)+1)
-                
-                max_bounds = vec2d(min_bounds.x+bounds_window.x,min_bounds.y-bounds_window.y)
-                chunk_manager.set_renderables(min_bounds, max_bounds)
+            bounds_window = vec2d(ceildiv(window.size[0],chunk_total_size)+1, ceildiv(window.size[1],chunk_total_size)+1)
+            min_bounds = vec2d(ceildiv(window.camera[0],chunk_total_size)-1, ceildiv(window.camera[1],chunk_total_size)+1)
+            
+            max_bounds = vec2d(min_bounds.x+bounds_window.x,min_bounds.y-bounds_window.y)
+            chunk_manager.set_renderables(min_bounds, max_bounds)
 
 Player(vec2d(0,0))
 # chunk_manager.set_renderables(vec2d(1,1),vec2d(3,3))
