@@ -1,59 +1,7 @@
+IMPORT_GRAPHICS_LIB = False
 from prelude import *
-from dataclasses import dataclass
 
-class Shape:
-    def furthest_in_dir(self, dir: vec2d) -> vec2d: ...
-
-@dataclass
-class Simplex2d(Shape): 
-    a: vec2d
-    b: vec2d
-    c: vec2d
-
-    def furthest_in_dir(self, dir: vec2d) -> vec2d:
-        
-        a_dot = dir.dot(self.a)
-        b_dot = dir.dot(self.b)
-        c_dot = dir.dot(self.c)
-
-        #https://stackoverflow.com/a/11825864
-
-        values = [a_dot, b_dot, c_dot]
-        index_max = max(range(len(values)), key=values.__getitem__)
-
-        match index_max:
-            case 0: return self.a
-            case 1: return self.b
-            case 2: return self.c
-
-@dataclass
-class Quad(Shape): 
-    a: vec2d
-    b: vec2d
-    c: vec2d
-    d: vec2d
-
-    def furthest_in_dir(self, dir: vec2d) -> vec2d:
-        
-        a_dot = dir.dot(self.a)
-        b_dot = dir.dot(self.b)
-        c_dot = dir.dot(self.c)
-        d_dot = dir.dot(self.d)
-
-        #https://stackoverflow.com/a/11825864
-
-        values = [a_dot, b_dot, c_dot, d_dot]
-        index_max = max(range(len(values)), key=values.__getitem__)
-
-        match index_max:
-            case 0: return self.a
-            case 1: return self.b
-            case 2: return self.c
-            case 3: return self.d
-    
-
-
-#https://www.youtube.com/watch?v=ajv46BSqcK4&t=468s
+#https://www.youtube.com/watch?v=ajv46BSqcK4
 #--- GJK Algorithm ---#
 
 def passes_origin(point1: vec2d, dir: vec2d) -> bool:
@@ -68,7 +16,7 @@ def normal_dir_origin(A: vec2d, B: vec2d) -> vec2d:
     vec3AB = vecAB.into_vec3d()
     vec3AO = vecAO.into_vec3d()
 
-    #triple cross product and then truncate the z value (should be 0)
+    #triple cross product and then truncate the z value (z should be 0)
     #(AB x AO) x AB
     return vec3AB.cross(vec3AO).cross(vec3AB).trunc_z()
 

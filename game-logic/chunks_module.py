@@ -1,3 +1,4 @@
+IMPORT_GRAPHICS_LIB = False
 from dataclasses import dataclass
 from prelude import *
 import itertools

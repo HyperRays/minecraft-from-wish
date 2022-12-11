@@ -1,6 +1,7 @@
 """
 System to dynamically load in and out chunks
 """
+IMPORT_GRAPHICS_LIB = False
 from prelude import *
 from chunks_module import Chunk
 
