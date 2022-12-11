@@ -8,6 +8,7 @@ from graphics.graphics_library import GraphicsObject
 import pygame
 from pygame.locals import *
 from basic_units import *
+from physics import intersect, Simplex2d, Quad
 
 #type aliases for better readability
 window = GraphicsObject

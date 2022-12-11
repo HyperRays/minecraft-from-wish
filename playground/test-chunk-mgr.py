@@ -1,39 +1,16 @@
 import os
 import sys
-import time
 sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))
 sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
 from prelude import *
 from chunks_module import Chunk
 from chunk_manager import ChunkManager
 
-
-
 window.init((700,700),"test chunks")
 
 #https://stackoverflow.com/questions/14822184/is-there-a-ceiling-equivalent-of-operator-in-python
 def ceildiv(a, b):
     return -(a // -b)
-
-class Timed:
-    def __init__(self, target_ns) -> None:
-        self.current_time = time.process_time_ns()
-        self.target_time = target_ns
-        self.total_time = 0
-        self.dx = 0
-    
-    def poll(self) -> None:
-        new_time = time.process_time_ns()
-        self.total_time += new_time - self.current_time
-        self.dx = new_time - self.current_time
-        self.current_time = new_time
-    
-    def reached(self) -> bool:
-        return self.total_time >= self.target_time
-    
-    def reset(self) -> None:
-        self.total_time = 0
-
 
 timer = Timed(1_000_000)
 
@@ -85,18 +62,25 @@ class Dirt(Square):
     store.textures[texture].image = pygame.transform.scale(store.textures[texture].image, (w,h))
     del a,b,ratio
 
+class Water(Square):
+    texture = GraphicsObject.add_texture("water_block1.png") 
+    (a,b) = store.textures[texture].image.get_size()
+    ratio = a/b
+    (w,h) = (Square.sq_size,Square.sq_size/ratio)
+    store.textures[texture].image = pygame.transform.scale(store.textures[texture].image, (w,h))
+    del a,b,ratio
+
 
 chunk_manager = ChunkManager()
-
 
 
 def test_render(x,y, chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
     coordinates = vec2d(x= (coordinates_glob.x*Ice.h), y= (coordinates_glob.y*Ice.w))
     if -coordinates_glob.y < 0:
-        return Sand(coordinates)
+        return Water(coordinates)
     if -coordinates_glob.y == 0:
-        return Grass(coordinates)
+        return Water(coordinates)
 
 
 for a in range(-10,10):
@@ -106,7 +90,7 @@ for a in range(-10,10):
 
 class Player(GraphicsObject):
 
-    texture = GraphicsObject.add_texture("hi-res-stickman.png") 
+    texture = GraphicsObject.add_texture("test_images/hi-res-stickman.png") 
     (a,b) = store.textures[texture].image.get_size()
     ratio = a/b
     (w,h) = (40,40/ratio)

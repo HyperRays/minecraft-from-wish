@@ -10,7 +10,7 @@ import time
 window.init((700,700),"test chunks")
 window.camera = [-window.size[0]/2,-window.size[1]/2]
 
-
+timer = Timed(1_000_000)
 
 class Square(GraphicsObject):
     sq_size = 17
@@ -54,7 +54,7 @@ class Dirt(Square):
 
 class Player(GraphicsObject):
 
-    texture = GraphicsObject.add_texture("hi-res-stickman.png") 
+    texture = GraphicsObject.add_texture("test_images/hi-res-stickman.png") 
     (a,b) = store.textures[texture].image.get_size()
     ratio = a/b
     (w,h) = (40,40/ratio)
