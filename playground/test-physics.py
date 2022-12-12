@@ -27,6 +27,25 @@ shape2 = Simplex2d(a=vec2d(-16.81612, 0.11362),b=vec2d(31.43204, -26.31644), c=v
 
 assert(intersect(shape1,shape2))
 
+#test for accuracy with larger values
+
+increment = vec2d(0,0)
+increment_step = vec2d(10,10)
+
+for x in range(10000):
+
+    shape1 = Simplex2d(a=vec2d(3.89262, 4.55136)+increment,b=vec2d(2.79635, 1.67626)+increment,c=vec2d(7.45029, 1.90378)+increment)
+    shape2 = Simplex2d(a=vec2d(6.74703, 5.23394)+increment,b=vec2d(4.57519, 2.60705)+increment,c=vec2d(7.94671, 3.51715)+increment)
+
+    assert(intersect(shape1, shape2))
+
+    shape1 = Simplex2d(a=vec2d(3.89262, 4.55136)+increment,b=vec2d(2.79635, 1.67626)+increment,c=vec2d(7.45029, 1.90378)+increment)
+    shape2 = Simplex2d(a=vec2d(6.74703, 5.23394)+increment,b=vec2d(1.56227, 6.82946)+increment,c=vec2d(7.94671, 3.51715)+increment)
+
+    assert(not intersect(shape1, shape2))
+
+    increment += increment_step
+
 def test_intersection():
     shape1 = Simplex2d(a=vec2d(3.89262, 4.55136),b=vec2d(2.79635, 1.67626),c=vec2d(7.45029, 1.90378))
     shape2 = Simplex2d(a=vec2d(6.74703, 5.23394),b=vec2d(4.57519, 2.60705),c=vec2d(7.94671, 3.51715))
