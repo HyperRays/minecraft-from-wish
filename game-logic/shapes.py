@@ -26,6 +26,9 @@ class Simplex2d(Shape):
             case 0: return self.a
             case 1: return self.b
             case 2: return self.c
+    
+    def centre_of_mass(self) -> vec2d:
+        return (self.a+self.b+self.c)/3
 
 @dataclass
 class Quad(Shape): 
@@ -51,3 +54,6 @@ class Quad(Shape):
             case 1: return self.b
             case 2: return self.c
             case 3: return self.d
+    
+    def centre_of_mass(self) -> vec2d:
+        return (self.a+self.b+self.c)/3
