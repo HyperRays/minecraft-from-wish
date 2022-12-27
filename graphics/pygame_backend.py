@@ -94,8 +94,8 @@ class PygameBackend:
 
             cls.screen.blit(cls.background, (0, 0))
             # the update closure (function) is passed by the GraphicsObject function
-            await input_closure(cls, keys)
             await update_closure(cls)
+            await input_closure(cls, keys)
             logging.debug(f"Updated Frame")
             pygame.display.update()
 
