@@ -1,4 +1,3 @@
-from multiprocessing import freeze_support
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))
@@ -119,7 +118,7 @@ class Water(Square):
 
     def __init__(self, position: vec2d) -> None:
         # sets a random time after which it will change to the next tile (it cycles through two tile)
-        self.timer = Timed(randint(1_000_000_0, 1_000_000_000_0))
+        self.timer = Timed(7_000_000_00)
 
         #set the starting position
         self.position = position
@@ -153,7 +152,7 @@ class Water(Square):
                 self.current_tex = 0
                 self.texture = self.texture1
             
-            self.timer.reset(new_target_ns=randint(1_000_000_0, 1_000_000_000_0))
+            self.timer.reset()
 
         
         self.screen.blit(self.texture.image, camera.screen_position(self.position).into_tuple())
@@ -251,7 +250,7 @@ class Player(GraphicsObject):
         if self.collided_dir[Directions.left]:
             if self.force.x < 0:
                 self.force.x = 0
-        
+
         # adds force to player
         self.position += self.force
         # renews collider
@@ -284,7 +283,7 @@ class Player(GraphicsObject):
 
         # goes through every block in the chunk to find out with which block the player is colliding with
         for obj in itertools.chain(*chunk.internal_objects):
-            if obj != None and type(obj) != Air:
+            if obj != None and type(obj) != Air and type(obj) != Water:
                 if intersect(self.collider, obj.collider):
                     dir = -relative_position(obj.collider, self.collider)
                     self.collided_dir[dir] = True
@@ -354,7 +353,7 @@ class Mouse(GraphicsObject):
         #draw in the mouse pointer (we can change this)
         pygame.draw.circle(window.screen, (100,200,100), (x,y), 5)
 
-        #create the chunk outline (for debugging purposes only)
+        # create the chunk outline (for debugging purposes only)
         tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * block_dimensions[0], CHUNK_DIMENSIONS[1] * block_dimensions[1])
         pygame.draw.polygon(self.screen, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
 
