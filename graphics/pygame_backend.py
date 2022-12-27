@@ -103,7 +103,7 @@ class PygameBackend:
     def init(cls, size, title):
 
         pygame.init()   
-        cls.screen = pygame.display.set_mode(size, flags= SCALED, vsync= 1)
+        cls.screen = pygame.display.set_mode(size)
         pygame.display.set_caption(title)
 
         #Fill Background
