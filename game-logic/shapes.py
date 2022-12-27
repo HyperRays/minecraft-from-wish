@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 class Shape:
     def furthest_in_dir(self, dir: vec2d) -> vec2d: ...
+    def center_of_mass(self) -> vec2d: ...
 
 @dataclass
 class Simplex2d(Shape): 
@@ -27,8 +28,9 @@ class Simplex2d(Shape):
             case 1: return self.b
             case 2: return self.c
     
-    def centre_of_mass(self) -> vec2d:
+    def center_of_mass(self) -> vec2d:
         return (self.a+self.b+self.c)/3
+    
 
 @dataclass
 class Quad(Shape): 
@@ -55,5 +57,15 @@ class Quad(Shape):
             case 2: return self.c
             case 3: return self.d
     
-    def centre_of_mass(self) -> vec2d:
+    def center_of_mass(self) -> vec2d:
         return (self.a+self.b+self.c)/3
+
+@dataclass
+class Point(Shape):
+    a: vec2d
+
+    def furthest_in_dir(self, _) -> vec2d:
+        return self.a
+    
+    def center_of_mass(self) -> vec2d:
+        return self.a

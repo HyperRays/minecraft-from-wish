@@ -1,4 +1,5 @@
 IMPORT_GRAPHICS_LIB = False
+import asyncio
 from dataclasses import dataclass
 from prelude import *
 import itertools
@@ -9,22 +10,21 @@ window.init((300,300),"test objects")
 
 class Chunk(GraphicsObject):
     # all chunks are squares, and predefined sizes
-    _chunk_size = 16
 
 
     # chunks have their own x,y coordinates, in the chunks there is another grid
     # this grid is the local coordinates of the individual tiles
-    # *() gets the global coordinates of the tile
+    # get_local_position() gets the global coordinates of the tile
     # get_local_coordinates() local coordinates of the tile
     # get_chunk() gets the chunk from a global coordinates
 
     def __init__(self, vec: vec2d, mapping_func) -> None:
         # chunks do not get immediately added to the objects list, but get loaded in 
         # dynamicaly depending on the players coordinates
-        self.internal_objects = [[[None] for _ in range(self._chunk_size)] for _ in range(self._chunk_size)]
+        self.internal_objects = [[None for _ in range(CHUNK_DIMENSIONS[0])] for _ in range(CHUNK_DIMENSIONS[1])]
         assert(vec.x%1==0 and vec.y%1==0)
         self.position = vec
-        self.on_load(mapping_func)
+        self.on_first_load(mapping_func)
 
     
     def get_chunk_coordinates(self, vec: vec2d) -> vec2d:
@@ -32,28 +32,30 @@ class Chunk(GraphicsObject):
         global coordinates based on current chunk and coordinates
         """
         # a bit of branchless programming
-        return vec2d(   x= self._chunk_size*self.position.x+vec.x,
+        return vec2d(   x= CHUNK_DIMENSIONS[0]*self.position.x+vec.x,
 
-                        y = self._chunk_size*self.position.y*-1+vec.y
+                        y = -CHUNK_DIMENSIONS[1]*self.position.y*-1+vec.y
                     )
     
-    def get_local_position(self, vec: vec2d):
-        """
-        gets chunk coordinates/key and local coordinates
-        """
+    async def update(self):
+        for object in itertools.chain(*self.internal_objects):
+                if object != None:
+                    await object.update()
 
-        vec2d(x=vec.x%self._chunk_size ,y= vec.y%self._chunk_size)
-    
-    def update(self):
-        for object in list(itertools.chain(*self.internal_objects)):
-            try:
-                object.update()
-            except AttributeError:
-                pass
+    def get(self, location: vec2d):
+        try:
+            return self.internal_objects[location.x][location.y]
+        except:
+            return None
 
-        
+    def set(self, location: vec2d, setter: GraphicsObject):
+        try:
+            self.internal_objects[location.x][location.y] = setter
+            return True
+        except:
+            return False
 
-    def on_load(self, mapping_func):
+    def on_first_load(self, mapping_func):
         # I don't know if this function is here to stay
         # probably need to find a better way
 

@@ -1,13 +1,15 @@
 """
 File for basic units
 """
+from math import sqrt
 import time
 from dataclasses import dataclass
 
+
 @dataclass(slots=True, unsafe_hash=True)
 class vec2d:
-    x: int
-    y: int
+    x: float
+    y: float
 
     def __add__(self, other):
         return vec2d(self.x+other.x, self.y+other.y)
@@ -34,18 +36,22 @@ class vec2d:
     #https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/vector-magnitude-normalization
     #magnitude
     def mag(self):
-        return (self.x*self.x+self.y*self.y)**(0.5)
+        return sqrt(self.x*self.x+self.y*self.y)
 
     def normalize(self):
         mag = self.mag()
         return vec2d(self.x/mag, self.y/mag)
+    
+    def into_tuple(self) -> tuple:
+        return (self.x, self.y)
+    
 
 
 @dataclass(slots=True, unsafe_hash=True)
 class vec3d:
-    x: int
-    y: int
-    z: int
+    x: float
+    y: float
+    z: float
 
     def __add__(self, other):
         return vec3d(self.x+other.x, self.y+other.y, self.z+other.z)
@@ -75,7 +81,9 @@ class vec3d:
     
     def trunc_z(self) -> vec2d:
         return vec2d(self.x, self.y)
-
+    
+    def into_tuple(self) -> tuple:
+        return (self.x, self.y, self.y)
     
     
 
@@ -93,5 +101,26 @@ class Timed:
     def reached(self) -> bool:
         return self.total_time >= self.target_time
     
-    def reset(self) -> None:
-        self.total_time = 0
+    def reset(self, new_target_ns=None) -> None:
+        self.total_time = self.total_time - self.target_time
+        if new_target_ns != None:
+            self.target_time = new_target_ns
+        
+
+
+#colored output (print)
+# https://stackoverflow.com/a/287944
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+#https://stackoverflow.com/questions/14822184/is-there-a-ceiling-equivalent-of-operator-in-python
+def ceildiv(a, b):
+    return -(a // -b)

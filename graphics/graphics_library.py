@@ -2,7 +2,7 @@ import os
 import logging
 from typing import Any
 from pygame_backend import PygameBackend, Image
-
+import asyncio
 
 class GraphicsObject(PygameBackend):
     objects = list()
@@ -23,13 +23,12 @@ class GraphicsObject(PygameBackend):
         super(GraphicsObject, cls).init(size,title)
         logging.info(f"successfully created window")
     
-    def update_callback_pygame(self) -> None:
-        for object in self.objects:
-            object.update()
+    async def update_callback_pygame(self):
+        await asyncio.gather(*[object.update() for object in self.objects])
+           
     
-    def input_callback_pygame(self, keys) -> None:
-        for object in self.objects:
-            object.input(keys)
+    async def input_callback_pygame(self, keys):
+        await asyncio.gather(*[object.input(keys) for object in self.objects])
 
     @classmethod
     def add_texture(cls, name: str) -> int:
@@ -48,10 +47,11 @@ class GraphicsObject(PygameBackend):
             case unimpl_backend:
                 raise NotImplementedError(f"The backend {unimpl_backend} has not been implemented yet")
         
-        cls.event_loop(update_callback_fn, input_callback_fn)
+        loop = asyncio.new_event_loop()
+        loop.run_until_complete(cls.event_loop(update_callback_fn, input_callback_fn))
 
     #placeholder update fn
     #runs every renderpass/flip
-    def update(*_): ...
+    async def update(*_): pass
 
-    def input(*_): ...
+    async def input(*_): pass

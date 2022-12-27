@@ -4,6 +4,7 @@ System to dynamically load in and out chunks
 IMPORT_GRAPHICS_LIB = False
 from prelude import *
 from chunks_module import Chunk
+import asyncio
 
 def acending_range(a,b) -> range:
     if a > b:
@@ -15,7 +16,6 @@ class ChunkManager(GraphicsObject):
 
     # chunks are stored in a dictonary with keys as the chunk's x,y coordinates
     
-
     def __init__(self) -> None:
         super().__init__()
         self.__renderables = []
@@ -33,12 +33,18 @@ class ChunkManager(GraphicsObject):
             for y in acending_range(bounds_max.y,bounds_min.y):
                 self.__renderables += [self.__chunk_dict[vec2d(x,y)]]
                 
+    def find_chunk(self, pos: vec2d, size: vec2d) -> Chunk:
+        x_chunk_pos = pos.x // size.x
+        y_chunk_pos = pos.y // size.y
+        return self.__chunk_dict[vec2d(x_chunk_pos, y_chunk_pos)]
     
+    async def update(self):
+        await self.render()
     
-    def update(self):
-        self.render()
-    
-    def render(self):
-        for renderable in self.__renderables:
-            renderable.update()
+    async def render(self):
+        await asyncio.gather(*[renderable.update() for renderable in self.__renderables])
+            
 
+    #only for debug
+    def set_all(self):
+        self.__renderables = list(self.__chunk_dict.values())
