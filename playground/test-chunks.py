@@ -1,3 +1,8 @@
+"""
+This file was used to test the chunks_module
+it is now outdated and will not run
+"""
+
 import os
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__),'../game-logic'))

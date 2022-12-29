@@ -1,3 +1,7 @@
+"""
+This is a helper class for the phyiscs, and provides all the neccesary functions for any convex shape intersection in 2d
+"""
+
 IMPORT_GRAPHICS_LIB = False
 from prelude import *
 from dataclasses import dataclass
