@@ -1,1 +1,5 @@
-gravity = 7
+gravity = 8
+
+[window]
+height = 700
+width = 700
