@@ -1,0 +1,4 @@
+extends = "base.toml"
+
+[properties]
+speed_mutiplier = 1.25
