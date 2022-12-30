@@ -72,7 +72,9 @@ class PygameBackend:
     @classmethod
     # the render loop
     async def event_loop(cls, update_closure: Any, input_closure: Any, render_closure: Any) -> None:
+        sync = _Timed(1_000_000_000/60)
         while True:
+            sync.poll()
             keys = pygame.key.get_pressed()
             pygame.event.poll()
             for event in pygame.event.get():
@@ -88,9 +90,11 @@ class PygameBackend:
                 if order in cls.layers:
                     cls.screen.blit(cls.layers[order], (0,0))
                     cls.layers[order].fill((0,0,0,0))
-        
-            logging.debug(f"Updated Frame")
-            pygame.display.update()
+
+            if sync.reached():
+                logging.debug(f"Updated Frame")
+                pygame.display.update()
+                sync.reset()
 
     @classmethod
     def init(cls, size: tuple[float, float], title: str):
