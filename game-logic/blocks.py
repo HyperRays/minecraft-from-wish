@@ -1,4 +1,5 @@
 from startup import *
+from load_block_config import *
 
 #stored values in variable to reduce typo errors
 material_n = "material"
@@ -30,6 +31,7 @@ class Material:
             return cls.load(b)
         else:
             raise TypeError(f"No material called {mat}")
+
 #square helper class, so that the collider creation and image (texture) loading is handled and 
 class Square(GraphicsObject):
 
@@ -74,9 +76,8 @@ class Square(GraphicsObject):
 
         return self
 
-
 #Air tile
-class Air(GraphicsObject):
+class Air(GraphicsObject, load_block_properties("air.toml")):
 
     def __init__(self, position: vec2d) -> None:
         self.position = position
@@ -113,28 +114,27 @@ class Air(GraphicsObject):
 
         return self
 
-
 #other tiles
-class Ice(Square):
+class Ice(Square, load_block_properties("ice.toml")):
     material = Material.ICE
     tex_name = "Ice" 
     texture_handler.load_texture(tex_name, "ice_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
-class Sand(Square):
+class Sand(Square, load_block_properties("sand.toml")):
     material = Material.SAND
     tex_name = "Sand" 
     texture_handler.load_texture(tex_name, "sand_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
     
 
-class Grass(Square):
+class Grass(Square, load_block_properties("grass.toml")):
     material = Material.GRASS
     tex_name = "Grass" 
     texture_handler.load_texture(tex_name, "grass_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
-class Dirt(Square):
+class Dirt(Square, load_block_properties("grass.toml")):
     material = Material.DIRT
     tex_name = "Dirt" 
     texture_handler.load_texture(tex_name, "dirt_block.png")   
@@ -142,7 +142,7 @@ class Dirt(Square):
 
 
 #Water is special, because it is animated
-class Water(Square):
+class Water(Square, load_block_properties("water.toml")):
 
     tex_name1 = "Water1" 
     texture_handler.load_texture(tex_name1, "water_block1.png")   
