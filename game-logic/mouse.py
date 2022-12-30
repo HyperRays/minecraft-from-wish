@@ -67,7 +67,7 @@ class Mouse(GraphicsObject):
                 if obj != None:
                     if intersect(self.collider, obj.collider):
                         obj.render_collision_detected = True
-
+                        print(chunk.collision_possiblites(vec2d(x,y)),end="\r")
                         #set the block to something else if the mouse is pressed
                         if mouse_down_left:
                             chunk.set(vec2d(x,y), Ice(obj.position))
@@ -76,3 +76,4 @@ class Mouse(GraphicsObject):
 
                     obj.render_collider_bounds = True
 
+        

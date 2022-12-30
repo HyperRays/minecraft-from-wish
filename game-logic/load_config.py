@@ -5,8 +5,6 @@ This file imports constants from TOML config files
 import toml
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__),"../config"))
-
 
 with open(os.path.join(os.path.dirname(__file__),"../config/chunk.toml")) as f:
     __config_chunks = toml.load(f)

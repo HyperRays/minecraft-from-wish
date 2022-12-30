@@ -1,0 +1,4 @@
+extends = "base.toml"
+
+[properties]
+collision = false
