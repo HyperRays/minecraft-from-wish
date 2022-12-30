@@ -31,8 +31,10 @@ class _Timed:
     def reached(self) -> bool:
         return self.total_time >= self.target_time
     
-    def reset(self) -> None:
+    def reset(self, new_target_time = None) -> None:
         self.total_time = self.total_time - self.target_time
+        if new_target_time != None:
+            self.target_time = new_target_time
 
 @dataclass(slots= True)
 class Image:
@@ -73,8 +75,10 @@ class PygameBackend:
     # the render loop
     async def event_loop(cls, update_closure: Any, input_closure: Any, render_closure: Any) -> None:
         sync = _Timed(1_000_000_000/60)
+        clock = pygame.time.Clock()
         while True:
             sync.poll()
+            clock.tick_busy_loop()
             keys = pygame.key.get_pressed()
             pygame.event.poll()
             for event in pygame.event.get():
@@ -94,7 +98,10 @@ class PygameBackend:
             if sync.reached():
                 logging.debug(f"Updated Frame")
                 pygame.display.update()
-                sync.reset()
+                if clock.get_fps() != 0:
+                    sync.reset(new_target_time=1_000_000_000/clock.get_fps())
+                else:
+                    sync.reset()
 
     @classmethod
     def init(cls, size: tuple[float, float], title: str):
