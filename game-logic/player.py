@@ -75,12 +75,12 @@ class Player(GraphicsObject):
 
         return self
 
-
     async def render(self):
         # render the image of the player to the screen accoring to the camera
         self.player_layer.blit(self.texture, camera.screen_position(self.position).into_tuple())
     
     async def update(self):
+
         # checks in which direction the player is colliding and sets the force in that axis to 0 (bad)
         if self.collided_dir[Directions.down]:
             if self.force.y < 0:
@@ -155,7 +155,7 @@ class Player(GraphicsObject):
         # goes through every block in the chunk to find out with which block the player is colliding with
         for chunk in chunks:
             for obj in itertools.chain(*chunk.internal_objects):
-                if obj != None and type(obj) != Air and type(obj) != Water:
+                if obj != None and obj.collision:
                     if intersect(self.collider, obj.collider):
                         dir = -relative_position(obj.collider, self.collider)
                         self.collided_dir[dir] = True
