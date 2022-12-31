@@ -1,5 +1,5 @@
 from startup import *
-from load_block_config import *
+from load_properties_config import load_block_properties
 
 #stored values in variable to reduce typo errors
 material_n = "material"

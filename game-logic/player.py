@@ -1,8 +1,9 @@
 from startup import *
 from blocks import *
 from terrain_generation import *
+from load_properties_config import load_player_properties
 
-class Player(GraphicsObject):
+class Player(GraphicsObject, load_player_properties()):
 
     graphics.create_layer("player_layer")
     player_layer = graphics.layers["player_layer"]
@@ -37,10 +38,11 @@ class Player(GraphicsObject):
             Directions.right: False
         }
 
+        # create window boundaries (so that the chunks can get loaded in and out dynamically)
         self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], -window.size[1])
         
+        # internal refrence to chunk manager
         self.chunk_mgr = chunk_manager
-        self.speed_mult = 1
 
     def save(self) -> bytes:
         save_dict = {
@@ -59,7 +61,8 @@ class Player(GraphicsObject):
 
         #create the collider
         self.collider = create_collider(self.position, self.w, -self.h)
-
+        
+        # create window boundaries (so that the chunks can get loaded in and out dynamically)
         self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1])
     
         # the forces that are applied to the player
@@ -72,7 +75,7 @@ class Player(GraphicsObject):
             Directions.left: False,
             Directions.right: False
         }
-        self.speed_mult = 1
+
         return self
 
     async def render(self):
@@ -95,17 +98,17 @@ class Player(GraphicsObject):
             if self.force.x < 0:
                 self.force.x = 0
 
-        # adds force to player
-        self.force.x = self.force.x * self.speed_mult
+        # adds force to player      
         self.position += self.force
-        self.speed_mult = 1
+
         # renews collider
         self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
 
-        #finds in which chunk the player is in through the cunk manager
+        #finds in which chunk the player is in through the chunk manager
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
 
+        # use the window boundaries to find sout which chunks to update
         self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1], collider= self.window_quad)
                    
         render_boundaries =     (chunk_manager.find_chunk_pos(self.window_quad.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
@@ -114,6 +117,7 @@ class Player(GraphicsObject):
                                 chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
                                 )
         
+        # one chunk margin to have smooth transition
         x_upper_bound = render_boundaries[1].x+1
         x_lower_bound = render_boundaries[0].x-1
     
@@ -189,6 +193,8 @@ class Player(GraphicsObject):
         if keys[self.characters["space"]] and self.collided_dir[Directions.down]:
             self.force.y += BLOCK_DIMENSIONS[0]+10
 
+        #todo
+        #https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
         #updates the camera position, so that the player stays in the center
         camera.update_position(self.position - vec2d(window.size[0]/2,-window.size[1]/2))
 
