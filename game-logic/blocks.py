@@ -77,7 +77,9 @@ class Square(GraphicsObject):
         return self
 
 #Air tile
-class Air(GraphicsObject, load_block_properties("air.toml")):
+class Air(Square, load_block_properties("air.toml")):
+
+    #Air is transparent so has to have some custom parts defined
 
     def __init__(self, position: vec2d) -> None:
         self.position = position
@@ -94,15 +96,9 @@ class Air(GraphicsObject, load_block_properties("air.toml")):
         self.render_collider_bounds = False
         self.render_collision_detected = False
     
-    def save(self) -> bytes:
-        save_dict = {
-            material_n: Material.AIR,
-            position_n: self.position,
-            collider_n: self.collider
-        }
+    async def render(self):
+        pass
 
-        return pickle.dumps(save_dict)
-    
     @classmethod
     def load(cls, b: bytes):
         self = cls.__new__(cls)
@@ -139,7 +135,6 @@ class Dirt(Square, load_block_properties("grass.toml")):
     tex_name = "Dirt" 
     texture_handler.load_texture(tex_name, "dirt_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
-
 
 #Water is special, because it is animated
 class Water(Square, load_block_properties("water.toml")):
