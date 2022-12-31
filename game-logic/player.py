@@ -2,7 +2,6 @@ from startup import *
 from blocks import *
 from terrain_generation import *
 
-
 class Player(GraphicsObject):
 
     graphics.create_layer("player_layer")
@@ -41,6 +40,7 @@ class Player(GraphicsObject):
         self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], -window.size[1])
         
         self.chunk_mgr = chunk_manager
+        self.speed_mult = 1
 
     def save(self) -> bytes:
         save_dict = {
@@ -72,7 +72,7 @@ class Player(GraphicsObject):
             Directions.left: False,
             Directions.right: False
         }
-
+        self.speed_mult = 1
         return self
 
     async def render(self):
@@ -96,7 +96,9 @@ class Player(GraphicsObject):
                 self.force.x = 0
 
         # adds force to player
+        self.force.x = self.force.x * self.speed_mult
         self.position += self.force
+        self.speed_mult = 1
         # renews collider
         self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
 
@@ -152,11 +154,14 @@ class Player(GraphicsObject):
             Directions.right: False
         }
 
+        
+
         # goes through every block in the chunk to find out with which block the player is colliding with
         for chunk in chunks:
             for obj in itertools.chain(*chunk.internal_objects):
                 if obj != None and obj.collision:
                     if intersect(self.collider, obj.collider):
+                        self.speed_mult = obj.speed_mutiplier
                         dir = -relative_position(obj.collider, self.collider)
                         self.collided_dir[dir] = True
                         obj.render_collision_detected = True
