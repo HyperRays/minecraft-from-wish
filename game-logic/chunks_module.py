@@ -6,12 +6,14 @@ IMPORT_GRAPHICS_LIB = False
 import asyncio
 from dataclasses import dataclass
 import pickle
+
+# from chunk_manager import ChunkManager
+
 from prelude import *
 import itertools
 import blocks
 
 window.init((300,300),"test objects")
-
 
 class Chunk(GraphicsObject):
     # all chunks are squares, and predefined sizes
@@ -49,27 +51,6 @@ class Chunk(GraphicsObject):
         for object in itertools.chain(*self.internal_objects):
                 if object != None:
                     await object.render()
-    
-    # def collision_possiblites(self, pos: vec2d):
-    #     filter_map = [
-    #         [vec2d(-1,1),vec2d(0,1),vec2d(1,1)],
-    #         [vec2d(-1,0),vec2d(0,0),vec2d(1,0)],
-    #         [vec2d(-1,-1),vec2d(0,-1),vec2d(1,-1)]
-    #     ]
-        
-    #     # 000 000 000 
-    #     # y -> " "
-    #     # x -> 000
-    #     filter_result = 0
-    #     for a,y in enumerate(filter_map):
-    #         for b,x in enumerate(y):
-    #             if (val := self.get(pos + x)) != None and val != None and val.collider: 
-    #                 filter_result += (1 << (a*3 + b))
-    #             else: pass
-    
-    #     return filter_result
-
-
             
     def get(self, location: vec2d):
         try:
