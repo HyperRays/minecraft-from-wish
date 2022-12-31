@@ -4,3 +4,7 @@ player-speed = 5
 [dimensions]
 height = 32
 width = 16
+
+[properties]
+speed_mutiplier = 1
+jump_multiplier = 1
