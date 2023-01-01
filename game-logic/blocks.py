@@ -191,7 +191,7 @@ class Water(Square, load_block_properties("water.toml")):
 
     async def update(self):
         #renew the collider and render the image
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
+        # self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
         # self.render()
 
         #setting the collider outlines and collision boundaries
