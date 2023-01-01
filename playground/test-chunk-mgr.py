@@ -152,6 +152,14 @@ class Ice(Square):
     texture_handler.load_texture(tex_name, "ice_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
+class JungleTreeLeaf(Square):
+    texture = GraphicsObject.add_texture("leaf_jungle_block.png") 
+    rescale_image(texture, height=block_dimensions[0], width=block_dimensions[1])
+
+class JungleTreeBark(Square):
+    texture = GraphicsObject.add_texture("bark_jungle_block.png") 
+    rescale_image(texture, height=block_dimensions[0], width=block_dimensions[1])
+
 class Sand(Square):
     tex_name = "Sand" 
     texture_handler.load_texture(tex_name, "sand_block.png")   
@@ -537,9 +545,9 @@ class Mouse(GraphicsObject):
 
                         #set the block to something else if the mouse is pressed
                         if mouse_down_left:
-                            chunk.set(vec2d(x,y), Ice(obj.position))
+                            chunk.set(vec2d(x,y), JungleTreeLeaf(obj.position))
                         if mouse_down_right:
-                            chunk.set(vec2d(x,y), Air(obj.position))
+                            chunk.set(vec2d(x,y), JungleTreeBark(obj.position))
 
                     obj.render_collider_bounds = True
 
