@@ -6,16 +6,16 @@ import toml
 import sys
 import os
 
-with open(os.path.join(os.path.dirname(__file__),"../config/chunk.toml")) as f:
+with open(os.path.join(os.path.dirname(__file__),"../assets/config/chunk.toml")) as f:
     __config_chunks = toml.load(f)
 
-with open(os.path.join(os.path.dirname(__file__),"../config/block.toml")) as f:
+with open(os.path.join(os.path.dirname(__file__),"../assets/config/block.toml")) as f:
     __config_blocks = toml.load(f)
 
-with open(os.path.join(os.path.dirname(__file__),"../config/player.toml")) as f:
+with open(os.path.join(os.path.dirname(__file__),"../assets/config/player.toml")) as f:
     __config_player = toml.load(f)
 
-with open(os.path.join(os.path.dirname(__file__),"../config/general.toml")) as f:
+with open(os.path.join(os.path.dirname(__file__),"../assets/config/general.toml")) as f:
     __config_general = toml.load(f)
 
 CHUNK_DIMENSIONS = tuple(__config_chunks["dimensions"].values())

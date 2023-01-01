@@ -2,7 +2,7 @@ import toml
 import os
 from uuid import uuid4
 
-BLOCKS_PATH = "../blocks/"
+BLOCKS_PATH = "../assets/blocks/"
 
 def load_block_properties(properties_file: str):
 
@@ -18,7 +18,7 @@ def load_block_properties(properties_file: str):
 
     return type(str(uuid4()), (object, ), __config_properties["properties"])
 
-PLAYER_CONFIG_PATH = "../config/player.toml"
+PLAYER_CONFIG_PATH = "../assets/config/player.toml"
 
 def load_player_properties():
 
