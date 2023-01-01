@@ -87,8 +87,7 @@ class PygameBackend:
 
             cls.screen.blit(cls.background, (0, 0))
             # the update closure (function) is passed by the GraphicsObject function
-            await input_closure(cls, keys)
-            await update_closure(cls)
+            await asyncio.gather(input_closure(cls, keys), update_closure(cls))
             await render_closure(cls)
             for order in cls.render_order:
                 if order in cls.layers:
@@ -98,8 +97,8 @@ class PygameBackend:
             if sync.reached():
                 logging.debug(f"Updated Frame")
                 pygame.display.update()
-                if clock.get_fps() != 0:
-                    sync.reset(new_target_time=1_000_000_000/clock.get_fps())
+                if (fps := clock.get_fps()) != 0:
+                    sync.reset(new_target_time=1_000_000_000/fps)
                 else:
                     sync.reset()
 
