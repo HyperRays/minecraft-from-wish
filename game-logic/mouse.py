@@ -70,7 +70,7 @@ class Mouse(GraphicsObject):
                         #set the block to something else if the mouse is pressed
                         if mouse_down_left:
                             chunk.set(vec2d(x,y), Ice(obj.position))
-                        if mouse_down_right:
+                        if mouse_down_right and obj.mineable:
                             chunk.set(vec2d(x,y), Air(obj.position))
 
                     obj.render_collider_bounds = True

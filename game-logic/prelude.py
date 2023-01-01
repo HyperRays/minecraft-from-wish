@@ -27,5 +27,6 @@ from physics import intersect, quad_quad_intersection, relative_position, Direct
 from camera import Camera, invert_y
 
 from texture_handler import TextureHandler
+from background import *
 
 

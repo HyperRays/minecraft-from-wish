@@ -1,4 +1,5 @@
 [properties]
 collision = true
+mineable = true
 speed_mutiplier = 1
 jump_multiplier = 1
