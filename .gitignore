@@ -9,4 +9,4 @@ graphics/activate_anaconda.bat
 activate-conda.bat
 
 .DS_Store
-game-logic/test.world
+# game-logic/test.world
