@@ -113,7 +113,8 @@ class PygameBackend:
         #Fill Background
         cls.background = pygame.Surface(size)
         cls.background = cls.background.convert()
-        cls.background.fill((250, 250, 250))
+        #this is temporary, we will have a bg class
+        cls.background.fill((255,255,255))
         
     
     @classmethod
