@@ -130,7 +130,13 @@ class Grass(Square, load_block_properties("grass.toml")):
     texture_handler.load_texture(tex_name, "grass_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
-class Dirt(Square, load_block_properties("grass.toml")):
+    graphics.create_layer("grass_layer")
+
+    async def render(self):
+        graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
+
+
+class Dirt(Square, load_block_properties("dirt.toml")):
     material = Material.DIRT
     tex_name = "Dirt" 
     texture_handler.load_texture(tex_name, "dirt_block.png")   

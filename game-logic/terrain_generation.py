@@ -5,9 +5,9 @@ def test_render(x,y, chunk):
     coordinates = vec2d(x= (coordinates_glob.x*BLOCK_DIMENSIONS[0]), y= (coordinates_glob.y*BLOCK_DIMENSIONS[1]))
 
     if coordinates_glob.y < 0:
-        return Water(coordinates)
+        return Dirt(coordinates)
     elif coordinates_glob.y == 0:
-        return Ice(coordinates)
+        return Grass(coordinates)
     else:
         return Air(coordinates)
 
