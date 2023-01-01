@@ -160,17 +160,20 @@ class Player(GraphicsObject, load_player_properties()):
 
         
 
-        # goes through every block in the chunk to find out with which block the player is colliding with
         for chunk in chunks:
-            for obj in itertools.chain(*chunk.internal_objects):
-                if obj != None and obj.collision:
-                    if intersect(self.collider, obj.collider):
-                        self.speed_mult = obj.speed_mutiplier
-                        dir = -relative_position(obj.collider, self.collider)
-                        self.collided_dir[dir] = True
-                        obj.render_collision_detected = True
+            for x,obj_x in enumerate(chunk.internal_objects):
+                for y,obj in enumerate(obj_x):
+                        if obj != None and obj.collision:
+                            if intersect(self.collider, obj.collider):
+                                self.speed_mult = obj.speed_mutiplier
+                                b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
+                                poss = collision_possibile_dir(b)
+                                dir = -relative_position(obj.collider, self.collider)
+                                if dir in poss:
+                                    self.collided_dir[dir] = True
+                                obj.render_collision_detected = True
 
-                    obj.render_collider_bounds = True
+                        obj.render_collider_bounds = True
 
         #adds the gravity force
         self.force += vec2d(0,-GRAVITY_ACCEL)
@@ -191,7 +194,7 @@ class Player(GraphicsObject, load_player_properties()):
             self.force.x -= PLAYER_SPEED
         
         if keys[self.characters["space"]] and self.collided_dir[Directions.down]:
-            self.force.y += BLOCK_DIMENSIONS[0]+10
+            self.force.y += BLOCK_DIMENSIONS[0]
 
         #todo
         #https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
