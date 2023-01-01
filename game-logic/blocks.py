@@ -14,6 +14,7 @@ class Material:
     GRASS = "Grass"
     DIRT = "Dirt"
     WATER = "Water"
+    Stone = "Stone"
 
     @staticmethod
     def map(material):
@@ -23,6 +24,7 @@ class Material:
             case Material.SAND: return Sand
             case Material.GRASS: return Grass
             case Material.WATER: return Water
+            case Material.Stone: return Stone
     
     @staticmethod
     def return_material(b: bytes):
@@ -130,10 +132,22 @@ class Grass(Square, load_block_properties("grass.toml")):
     texture_handler.load_texture(tex_name, "grass_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
-class Dirt(Square, load_block_properties("grass.toml")):
+    graphics.create_layer("grass_layer")
+
+    async def render(self):
+        graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
+
+
+class Dirt(Square, load_block_properties("dirt.toml")):
     material = Material.DIRT
     tex_name = "Dirt" 
     texture_handler.load_texture(tex_name, "dirt_block.png")   
+    texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
+
+class Stone(Square, load_block_properties("stone.toml")):
+    material = Material.Stone
+    tex_name = "Stone" 
+    texture_handler.load_texture(tex_name, "stone_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
 
 #Water is special, because it is animated
