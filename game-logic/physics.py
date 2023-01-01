@@ -1,3 +1,7 @@
+"""
+This is the physics module to determine collisions
+"""
+
 IMPORT_GRAPHICS_LIB = False
 import enum
 from prelude import *
@@ -106,205 +110,207 @@ def _intersect_only_check(shape1: Shape, shape2: Shape) -> bool:
 
         return False
  
-#currently broken
 #--- END GJK Algorithm ---#
 
+"""
+# shift = vec2d(300,300)
 
-shift = vec2d(300,300)
+# #https://dyn4j.org/2010/04/gjk-distance-closest-points/
+#currently broken (everything below)
+# #--- Distance GJK version ---#
 
-#https://dyn4j.org/2010/04/gjk-distance-closest-points/
-#--- Distance GJK version ---#
+# #closest point on line to origin
+# def closest_point_on_line(A: vec2d, B: vec2d):
 
-#closest point on line to origin
-def closest_point_on_line(A: vec2d, B: vec2d):
+#     #vector projection AO on AB to find vector to closest point
+#     #https://en.wikipedia.org/wiki/Vector_projection
 
-    #vector projection AO on AB to find vector to closest point
-    #https://en.wikipedia.org/wiki/Vector_projection
+#     pygame.draw.circle(window.screen, (0,0,255), (A+shift).into_tuple(), 4)
+#     pygame.draw.circle(window.screen, (0,255,0), (B+shift).into_tuple(), 4)
 
-    pygame.draw.circle(window.screen, (0,0,255), (A+shift).into_tuple(), 4)
-    pygame.draw.circle(window.screen, (0,255,0), (B+shift).into_tuple(), 4)
-
-    vecAB = B-A
-    vecAO = -A
+#     vecAB = B-A
+#     vecAO = -A
     
-    proj = vecAO.dot(vecAB)
-    sq = vecAO.dot(vecAO)
+#     proj = vecAO.dot(vecAB)
+#     sq = vecAO.dot(vecAO)
     
-    if sq == 0:
-        t = 0
-    else:
-        t = 1 - (proj / sq)
-        if t < 0:
-            t = 0
-        elif t > 1:
-            t = 1
+#     if sq == 0:
+#         t = 0
+#     else:
+#         t = 1 - (proj / sq)
+#         if t < 0:
+#             t = 0
+#         elif t > 1:
+#             t = 1
 
-    closest_point = (vecAB * t) + A
+#     closest_point = (vecAB * t) + A
 
-    return closest_point
+#     return closest_point
 
-shift = vec2d(250, 250)
+# shift = vec2d(250, 250)
 
-def _intersect_with_dist(shape1: Shape, shape2: Shape) -> tuple[bool, vec2d]:
+# def _intersect_with_dist(shape1: Shape, shape2: Shape) -> tuple[bool, vec2d]:
     
-    does_not_intersect = False
-    dir = vec2d(0,1)
-    tri_points: list[vec2d] = []
+#     does_not_intersect = False
+#     dir = vec2d(0,1)
+#     tri_points: list[vec2d] = []
 
-    mink_point = mink_diff(shape1, shape2, dir)
-    tri_points.append(mink_point)
-    del dir
+#     mink_point = mink_diff(shape1, shape2, dir)
+#     tri_points.append(mink_point)
+#     del dir
 
-    vec_to_origin = vec2d(0,0) - mink_point
-    mink_point = mink_diff(shape1, shape2, vec_to_origin)
+#     vec_to_origin = vec2d(0,0) - mink_point
+#     mink_point = mink_diff(shape1, shape2, vec_to_origin)
     
 
-    if not passes_origin(mink_point, vec_to_origin):
-        does_not_intersect = True
+#     if not passes_origin(mink_point, vec_to_origin):
+#         does_not_intersect = True
     
-    tri_points.append(mink_point)
-    del vec_to_origin
+#     tri_points.append(mink_point)
+#     del vec_to_origin
     
-    norm_to_origin = normal_dir_origin(tri_points[0], tri_points[1])
-    mink_point = mink_diff(shape1, shape2, norm_to_origin)
+#     norm_to_origin = normal_dir_origin(tri_points[0], tri_points[1])
+#     mink_point = mink_diff(shape1, shape2, norm_to_origin)
 
-    if not passes_origin(mink_point, norm_to_origin):
-        does_not_intersect = True
+#     if not passes_origin(mink_point, norm_to_origin):
+#         does_not_intersect = True
 
-    tri_points.append(mink_point)
-    del norm_to_origin
+#     tri_points.append(mink_point)
+#     del norm_to_origin
 
-    dir = None
+#     dir = None
 
-    iterations = 10
-    for _ in range(iterations):
-        passed,new_dir = triangle_contains_origin(tri_points[0], tri_points[1], tri_points[2])
-        if passed:
-            return (not (False or does_not_intersect), closest_point_on_line(tri_points[1],tri_points[2]).mag())
-        else:
-            dir = new_dir
-            prev_p = tri_points.pop(0)
-            mink_point = mink_diff(shape1, shape2, dir)
+#     iterations = 10
+#     for _ in range(iterations):
+#         passed,new_dir = triangle_contains_origin(tri_points[0], tri_points[1], tri_points[2])
+#         if passed:
+#             return (not (False or does_not_intersect), closest_point_on_line(tri_points[1],tri_points[2]).mag())
+#         else:
+#             dir = new_dir
+#             prev_p = tri_points.pop(0)
+#             mink_point = mink_diff(shape1, shape2, dir)
 
-            if not passes_origin(mink_point, dir):
-                return (False, closest_point_on_line(prev_p , mink_point).mag())
+#             if not passes_origin(mink_point, dir):
+#                 return (False, closest_point_on_line(prev_p , mink_point).mag())
             
-            else: 
-                tri_points.append(mink_point)
+#             else: 
+#                 tri_points.append(mink_point)
         
-    return (False, closest_point_on_line(tri_points[1],tri_points[2]).mag())
+#     return (False, closest_point_on_line(tri_points[1],tri_points[2]).mag())
  
-#--- END Distance GJK version ---#
+# #--- END Distance GJK version ---#
 
 
-#---- Closest points GJK version ---#
+# #---- Closest points GJK version ---#
 
-def closest_points_on_shapes(pshape1: tuple[vec2d, vec2d], pshape2: tuple[vec2d, vec2d], l: vec2d, a: vec2d) -> tuple[vec2d, vec2d]:
+# def closest_points_on_shapes(pshape1: tuple[vec2d, vec2d], pshape2: tuple[vec2d, vec2d], l: vec2d, a: vec2d) -> tuple[vec2d, vec2d]:
 
-    # pshape is organized like this:
-    # pshape1 = (a.shape1, a.shape2)
-    # pshape2 = (b.shape1, b.shape2)
+#     # pshape is organized like this:
+#     # pshape1 = (a.shape1, a.shape2)
+#     # pshape2 = (b.shape1, b.shape2)
 
-    ldotl = l.dot(l)
-    if (ldotl == 0):
-        return pshape1
-    ldota = l.dot(a)
+#     ldotl = l.dot(l)
+#     if (ldotl == 0):
+#         return pshape1
+#     ldota = l.dot(a)
 
-    lambda2 = -(ldota/ldotl)
-    lambda1 = 1 - lambda2
+#     lambda2 = -(ldota/ldotl)
+#     lambda1 = 1 - lambda2
 
-    if (lambda1 < 0):
-        return pshape2
-    elif (lambda2 < 0):
-        return pshape1
-    else:
-        aClosest = pshape1[0] * lambda1 + pshape2[0] * lambda2
-        bClosest =  pshape1[1] * lambda1 + pshape2[1] * lambda2
-        return (aClosest, bClosest)
-
-
+#     if (lambda1 < 0):
+#         return pshape2
+#     elif (lambda2 < 0):
+#         return pshape1
+#     else:
+#         aClosest = pshape1[0] * lambda1 + pshape2[0] * lambda2
+#         bClosest =  pshape1[1] * lambda1 + pshape2[1] * lambda2
+#         return (aClosest, bClosest)
 
 
-def _itersect_with_points(shape1: Shape, shape2: Shape) -> tuple[bool, int, tuple[vec2d, vec2d]]:
-    does_not_intersect = False
-    dir = vec2d(0,1)
-    tri_points: list[vec2d] = []
-    # (shape1, shape2)
-    support_points: list[tuple[vec2d]] = []
 
-    mink_point = mink_diff(shape1, shape2, dir)
-    tri_points.append(mink_point)
-    del dir
 
-    vec_to_origin = vec2d(0,0) - mink_point
-    mink_point, sp = mink_diff(shape1, shape2, vec_to_origin, return_support_points=True)
-    support_points += [sp]
+# def _itersect_with_points(shape1: Shape, shape2: Shape) -> tuple[bool, int, tuple[vec2d, vec2d]]:
+#     does_not_intersect = False
+#     dir = vec2d(0,1)
+#     tri_points: list[vec2d] = []
+#     # (shape1, shape2)
+#     support_points: list[tuple[vec2d]] = []
 
-    if not passes_origin(mink_point, vec_to_origin):
-        does_not_intersect = True
+#     mink_point = mink_diff(shape1, shape2, dir)
+#     tri_points.append(mink_point)
+#     del dir
+
+#     vec_to_origin = vec2d(0,0) - mink_point
+#     mink_point, sp = mink_diff(shape1, shape2, vec_to_origin, return_support_points=True)
+#     support_points += [sp]
+
+#     if not passes_origin(mink_point, vec_to_origin):
+#         does_not_intersect = True
     
-    tri_points.append(mink_point)
-    del vec_to_origin
+#     tri_points.append(mink_point)
+#     del vec_to_origin
     
-    norm_to_origin = normal_dir_origin(tri_points[0], tri_points[1])
-    mink_point, sp = mink_diff(shape1, shape2, norm_to_origin, return_support_points=True)
-    support_points += [sp]
+#     norm_to_origin = normal_dir_origin(tri_points[0], tri_points[1])
+#     mink_point, sp = mink_diff(shape1, shape2, norm_to_origin, return_support_points=True)
+#     support_points += [sp]
 
-    if not passes_origin(mink_point, norm_to_origin):
-        does_not_intersect = True
+#     if not passes_origin(mink_point, norm_to_origin):
+#         does_not_intersect = True
 
-    tri_points.append(mink_point)
-    del norm_to_origin
+#     tri_points.append(mink_point)
+#     del norm_to_origin
 
-    dir = None
+#     dir = None
 
-    iterations = 10
-    for _ in range(iterations):
-        passed,new_dir = triangle_contains_origin(tri_points[0], tri_points[1], tri_points[2])
+#     iterations = 10
+#     for _ in range(iterations):
+#         passed,new_dir = triangle_contains_origin(tri_points[0], tri_points[1], tri_points[2])
 
-        p1 = closest_point_on_line(tri_points[0], tri_points[2])
-        p2 = closest_point_on_line(tri_points[2], tri_points[1])
+#         p1 = closest_point_on_line(tri_points[0], tri_points[2])
+#         p2 = closest_point_on_line(tri_points[2], tri_points[1])
 
-        if p1.dot(p1) < p2.dot(p2):
-            l = p1
-        else:
-            l = p2
+#         if p1.dot(p1) < p2.dot(p2):
+#             l = p1
+#         else:
+#             l = p2
 
-        pygame.draw.polygon(window.screen, (255,0,255), [(tri_points[0]+shift).into_tuple(),(tri_points[1]+shift).into_tuple(),(tri_points[2]+shift).into_tuple()])
-        pygame.draw.circle(window.screen, (0,0,255), shift.into_tuple(), 3)
+#         pygame.draw.polygon(window.screen, (255,0,255), [(tri_points[0]+shift).into_tuple(),(tri_points[1]+shift).into_tuple(),(tri_points[2]+shift).into_tuple()])
+#         pygame.draw.circle(window.screen, (0,0,255), shift.into_tuple(), 3)
 
-        if passed:
-            pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
-            return (not (False or does_not_intersect), l.mag(), closest_points_on_shapes(
-                (support_points[0][0],support_points[0][1]), 
-                (support_points[1][0],support_points[1][1]), 
-                l, 
-                tri_points[1]))
-        else:
-            dir = new_dir
-            prev_p = tri_points.pop(0)
-            mink_point, sp = mink_diff(shape1, shape2, dir, return_support_points=True)
-            support_points.pop(0)
-            support_points += [sp]
+#         if passed:
+#             pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
+#             return (not (False or does_not_intersect), l.mag(), closest_points_on_shapes(
+#                 (support_points[0][0],support_points[0][1]), 
+#                 (support_points[1][0],support_points[1][1]), 
+#                 l, 
+#                 tri_points[1]))
+#         else:
+#             dir = new_dir
+#             prev_p = tri_points.pop(0)
+#             mink_point, sp = mink_diff(shape1, shape2, dir, return_support_points=True)
+#             support_points.pop(0)
+#             support_points += [sp]
 
-            if not passes_origin(mink_point, dir):
-                pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
-                return (False, l.mag(), closest_points_on_shapes(
-                    (support_points[0][0],support_points[0][1]), 
-                    (support_points[1][0],support_points[1][1]), 
-                    l,
-                    prev_p))
+#             if not passes_origin(mink_point, dir):
+#                 pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
+#                 return (False, l.mag(), closest_points_on_shapes(
+#                     (support_points[0][0],support_points[0][1]), 
+#                     (support_points[1][0],support_points[1][1]), 
+#                     l,
+#                     prev_p))
             
-            else: 
-                tri_points.append(mink_point)
+#             else: 
+#                 tri_points.append(mink_point)
     
-    pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
-    return (False, l.mag(), closest_points_on_shapes(
-        (support_points[0][0],support_points[0][1]), 
-        (support_points[1][0],support_points[1][1]), 
-        l, 
-        tri_points[1]
-        ))
+#     pygame.draw.line(window.screen, (255,0,0), (l + shift).into_tuple(), shift.into_tuple())
+#     return (False, l.mag(), closest_points_on_shapes(
+#         (support_points[0][0],support_points[0][1]), 
+#         (support_points[1][0],support_points[1][1]), 
+#         l, 
+#         tri_points[1]
+#         ))
+
+"""
 
 
 # "overload" the different GJK versions
@@ -322,10 +328,6 @@ class Directions:
     right = vec2d(1,0)
     up = vec2d(0,1)
     down = vec2d(0,-1)
-
-
-
-
 
 def quad_quad_intersection(quad1: Quad, quad2: Quad) -> tuple[bool, tuple | Directions]:
 
@@ -353,9 +355,85 @@ def relative_position(shape1: Shape, shape2: Shape):
     for i, val in enumerate(dots):
         if dots[index_max] < val:
             index_max = i
-    
+
     return dirs[index_max]
 
+def adjacency_bytes(chunk, pos: vec2d, chunk_mgr):
+    # technically like this, but we don't need the corner blocks or the centre one
+
+    # 000 000 000 
+    # y -> " "
+    # x -> 000
+
+    # filter_map = [
+    #     [vec2d(-1,1),vec2d(0,1),vec2d(1,1)],
+    #     [vec2d(-1,0),vec2d(0,0),vec2d(1,0)],
+    #     [vec2d(-1,-1),vec2d(0,-1),vec2d(1,-1)]
+    # ]
+
+
+
+    
+    # filter_map = [
+    #                 [vec2d(0,1)],
+    #     [vec2d(-1,0)            ,vec2d(1,0)],
+    #                 [vec2d(0,-1)]
+    # ]
+
+    filter_map = [vec2d(0,-1),vec2d(1,0),vec2d(-1,0),vec2d(0,1)]
+
+    # 0 00 0
+    # 1 00 0 -> upper block
+    # 0 10 0 -> left block
+    # 0 01 0 -> right block
+    # 0 00 1 -> lower block
+
+    if chunk.get(pos).collision:
+        filter_result = 0
+        for i,r in enumerate(filter_map):
+                p = pos + r
+                val = chunk.get(pos + r)
+                if not (-1 > p.x > 16) or not (-1 > p.y > 16): 
+                    del val
+                    neighbour_chunk_relative_pos = vec2d(x= (p.x > 15) * 1 + (p.x < 0) * -1,
+                                                            y= (p.y > 15) * 1 + (p.y < 0) * -1)
+                    neighbour_chunk = chunk_mgr.get_chunk(chunk.position+neighbour_chunk_relative_pos)
+                    block = neighbour_chunk.get(vec2d(x = (neighbour_chunk_relative_pos.x == 0) * p.x + (neighbour_chunk_relative_pos.x == 1) * 0 + (neighbour_chunk_relative_pos.x == -1) * 15,
+                                                        y = (neighbour_chunk_relative_pos.y == 0) * p.y + (neighbour_chunk_relative_pos.x == 1) * 0 + (neighbour_chunk_relative_pos.x == -1) * 15))
+                    del p
+                    if block != None and block.collision:
+                        filter_result += (1 << i)
+                    else:
+                        pass
+
+                elif val != None and val.collision: 
+                    del p, val
+                    filter_result += (1 << i)
+                
+                else: pass
+
+        return filter_result
+
+    else:
+        return 0
+
+
+def collision_possibile_dir(neighbors: bytes) -> Directions:
+
+    # 0 00 0
+    # 1 00 0 -> upper block
+    # 0 10 0 -> left block
+    # 0 01 0 -> right block
+    # 0 00 1 -> lower block
+    collision_possibilites = {Directions.up,Directions.down,Directions.left, Directions.right}
+    if neighbors & 0b1_00_0: collision_possibilites -= {Directions.down}
+    if neighbors & 0b0_10_0: collision_possibilites -= {Directions.right}
+    if neighbors & 0b0_01_0: collision_possibilites -= {Directions.left}
+    if neighbors & 0b0_00_1: collision_possibilites -= {Directions.up}
+
+    return collision_possibilites
+
+"""
 # # voronoi regions
 
 # class QuadRegions:
@@ -458,3 +536,4 @@ def relative_position(shape1: Shape, shape2: Shape):
 #         case 2: return Directions.left
 #         case 3: return Directions.right
     
+"""

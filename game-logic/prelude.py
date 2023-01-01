@@ -10,7 +10,7 @@ try: IMPORT_GRAPHICS_LIB
 except: IMPORT_GRAPHICS_LIB = True
 
 if IMPORT_GRAPHICS_LIB:
-    from graphics.graphics_library import GraphicsObject
+    from graphics.graphics_library import GraphicsObject, Image
     import pygame
     from pygame.locals import *
 
@@ -21,9 +21,11 @@ if IMPORT_GRAPHICS_LIB:
 
 from basic_units import *
 from shapes import Shape, Simplex2d, Quad, Point
-from physics import intersect, quad_quad_intersection, relative_position, Directions
+from physics import intersect, quad_quad_intersection, relative_position, Directions, collision_possibile_dir, adjacency_bytes, lerp 
 # only for debug purpose
 # from physics import triangle_contains_origin
 from camera import Camera, invert_y
+
+from texture_handler import TextureHandler
 
 

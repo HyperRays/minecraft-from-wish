@@ -1,5 +1,5 @@
 """
-File for basic units
+Module for basic units
 """
 from math import sqrt
 import time
@@ -36,7 +36,7 @@ class vec2d:
     #https://www.khanacademy.org/computing/computer-programming/programming-natural-simulations/programming-vectors/a/vector-magnitude-normalization
     #magnitude
     def mag(self):
-        return sqrt(self.x*self.x+self.y*self.y)
+        return sqrt(self.dot(self))
 
     def normalize(self):
         mag = self.mag()

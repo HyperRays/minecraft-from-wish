@@ -7,3 +7,6 @@ graphics/activate_anaconda.bat
 # python binary
 *.pyc
 activate-conda.bat
+
+.DS_Store
+game-logic/test.world

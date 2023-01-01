@@ -1,0 +1,4 @@
+[properties]
+collision = true
+speed_mutiplier = 1
+jump_multiplier = 1

@@ -1,3 +1,6 @@
+"""
+a simple camera for 2d
+"""
 IMPORT_GRAPHICS_LIB = False
 from prelude import *
 
