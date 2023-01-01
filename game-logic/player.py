@@ -3,6 +3,14 @@ from blocks import *
 from terrain_generation import *
 from load_properties_config import load_player_properties
 
+# the Directions are actually just vectors, so they have to be turned into names
+def _repr_Directions(dir: Directions) -> str:
+    match dir:
+        case Directions.up: return "up"
+        case Directions.down: return "down"
+        case Directions.left: return "left"
+        case Directions.right: return "right"
+
 class Player(GraphicsObject, load_player_properties()):
 
     graphics.create_layer("player_layer")
@@ -43,6 +51,8 @@ class Player(GraphicsObject, load_player_properties()):
         
         # internal refrence to chunk manager
         self.chunk_mgr = chunk_manager
+
+        self.speed_mult = 1
 
     def save(self) -> bytes:
         save_dict = {
@@ -98,6 +108,8 @@ class Player(GraphicsObject, load_player_properties()):
             if self.force.x < 0:
                 self.force.x = 0
 
+        self.force.x = self.force.x * self.speed_mult
+
         # adds force to player      
         self.position += self.force
 
@@ -127,8 +139,9 @@ class Player(GraphicsObject, load_player_properties()):
         bounds_min = vec2d(x_lower_bound, y_lower_bound)
         bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
-        chunk_manager.set_renderables(bounds_max, bounds_min, test_render)
-                        
+        chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
+
+        #padding is added so that player won't go though blocks before chunk is detected 
         chunks_coords: set[vec2d] = set(
             (chunk_manager.find_chunk_pos(self.collider.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
             chunk_manager.find_chunk_pos(self.collider.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
@@ -168,9 +181,10 @@ class Player(GraphicsObject, load_player_properties()):
                                 self.speed_mult = obj.speed_mutiplier
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
-                                dir = -relative_position(obj.collider, self.collider)
-                                if dir in poss:
-                                    self.collided_dir[dir] = True
+                                if len(poss) == 0:
+                                    continue
+                                dir = -relative_position(obj.collider, self.collider, list(poss))
+                                self.collided_dir[dir] = True
                                 obj.render_collision_detected = True
 
                         obj.render_collider_bounds = True
@@ -194,7 +208,7 @@ class Player(GraphicsObject, load_player_properties()):
             self.force.x -= PLAYER_SPEED
         
         if keys[self.characters["space"]] and self.collided_dir[Directions.down]:
-            self.force.y += BLOCK_DIMENSIONS[0]
+            self.force.y += BLOCK_DIMENSIONS[0]*2
 
         #todo
         #https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
@@ -232,4 +246,4 @@ class Player(GraphicsObject, load_player_properties()):
             bounds_min = vec2d(x_lower_bound, y_lower_bound)
             bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
-            chunk_manager.set_renderables(bounds_max, bounds_min, test_render)
+            chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
