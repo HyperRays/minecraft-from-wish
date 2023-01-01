@@ -21,7 +21,7 @@ if IMPORT_GRAPHICS_LIB:
 
 from basic_units import *
 from shapes import Shape, Simplex2d, Quad, Point
-from physics import intersect, quad_quad_intersection, relative_position, Directions
+from physics import intersect, quad_quad_intersection, relative_position, Directions, collision_possibile_dir, adjacency_bytes 
 # only for debug purpose
 # from physics import triangle_contains_origin
 from camera import Camera, invert_y

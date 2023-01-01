@@ -112,7 +112,7 @@ def _intersect_only_check(shape1: Shape, shape2: Shape) -> bool:
  
 #--- END GJK Algorithm ---#
 
-
+"""
 # shift = vec2d(300,300)
 
 # #https://dyn4j.org/2010/04/gjk-distance-closest-points/
@@ -310,6 +310,8 @@ def _intersect_only_check(shape1: Shape, shape2: Shape) -> bool:
 #         tri_points[1]
 #         ))
 
+"""
+
 
 # "overload" the different GJK versions
 def intersect(shape1: Shape, shape2: Shape, dist=None, points=None):
@@ -326,10 +328,6 @@ class Directions:
     right = vec2d(1,0)
     up = vec2d(0,1)
     down = vec2d(0,-1)
-
-
-
-
 
 def quad_quad_intersection(quad1: Quad, quad2: Quad) -> tuple[bool, tuple | Directions]:
 
@@ -357,9 +355,85 @@ def relative_position(shape1: Shape, shape2: Shape):
     for i, val in enumerate(dots):
         if dots[index_max] < val:
             index_max = i
-    
+
     return dirs[index_max]
 
+def adjacency_bytes(chunk, pos: vec2d, chunk_mgr):
+    # technically like this, but we don't need the corner blocks or the centre one
+
+    # 000 000 000 
+    # y -> " "
+    # x -> 000
+
+    # filter_map = [
+    #     [vec2d(-1,1),vec2d(0,1),vec2d(1,1)],
+    #     [vec2d(-1,0),vec2d(0,0),vec2d(1,0)],
+    #     [vec2d(-1,-1),vec2d(0,-1),vec2d(1,-1)]
+    # ]
+
+
+
+    
+    # filter_map = [
+    #                 [vec2d(0,1)],
+    #     [vec2d(-1,0)            ,vec2d(1,0)],
+    #                 [vec2d(0,-1)]
+    # ]
+
+    filter_map = [vec2d(0,-1),vec2d(1,0),vec2d(-1,0),vec2d(0,1)]
+
+    # 0 00 0
+    # 1 00 0 -> upper block
+    # 0 10 0 -> left block
+    # 0 01 0 -> right block
+    # 0 00 1 -> lower block
+
+    if chunk.get(pos).collision:
+        filter_result = 0
+        for i,r in enumerate(filter_map):
+                p = pos + r
+                val = chunk.get(pos + r)
+                if not (-1 > p.x > 16) or not (-1 > p.y > 16): 
+                    del val
+                    neighbour_chunk_relative_pos = vec2d(x= (p.x > 15) * 1 + (p.x < 0) * -1,
+                                                            y= (p.y > 15) * 1 + (p.y < 0) * -1)
+                    neighbour_chunk = chunk_mgr.get_chunk(chunk.position+neighbour_chunk_relative_pos)
+                    block = neighbour_chunk.get(vec2d(x = (neighbour_chunk_relative_pos.x == 0) * p.x + (neighbour_chunk_relative_pos.x == 1) * 0 + (neighbour_chunk_relative_pos.x == -1) * 15,
+                                                        y = (neighbour_chunk_relative_pos.y == 0) * p.y + (neighbour_chunk_relative_pos.x == 1) * 0 + (neighbour_chunk_relative_pos.x == -1) * 15))
+                    del p
+                    if block != None and block.collision:
+                        filter_result += (1 << i)
+                    else:
+                        pass
+
+                elif val != None and val.collision: 
+                    del p, val
+                    filter_result += (1 << i)
+                
+                else: pass
+
+        return filter_result
+
+    else:
+        return 0
+
+
+def collision_possibile_dir(neighbors: bytes) -> Directions:
+
+    # 0 00 0
+    # 1 00 0 -> upper block
+    # 0 10 0 -> left block
+    # 0 01 0 -> right block
+    # 0 00 1 -> lower block
+    collision_possibilites = {Directions.up,Directions.down,Directions.left, Directions.right}
+    if neighbors & 0b1_00_0: collision_possibilites -= {Directions.down}
+    if neighbors & 0b0_10_0: collision_possibilites -= {Directions.right}
+    if neighbors & 0b0_01_0: collision_possibilites -= {Directions.left}
+    if neighbors & 0b0_00_1: collision_possibilites -= {Directions.up}
+
+    return collision_possibilites
+
+"""
 # # voronoi regions
 
 # class QuadRegions:
@@ -462,3 +536,4 @@ def relative_position(shape1: Shape, shape2: Shape):
 #         case 2: return Directions.left
 #         case 3: return Directions.right
     
+"""
