@@ -342,13 +342,13 @@ def quad_quad_intersection(quad1: Quad, quad2: Quad) -> tuple[bool, tuple | Dire
     return up and down and left and right
 
 
-def relative_position(shape1: Shape, shape2: Shape):
+def relative_position(shape1: Shape, shape2: Shape, possible_dir: list[Directions]):
     center1 = shape1.center_of_mass()
     center2 = shape2.center_of_mass()
 
     dirC1C2 = (center2 - center1).normalize()
 
-    dirs = [Directions.down, Directions.up, Directions.left, Directions.right]
+    dirs = possible_dir
     dots = [dirC1C2.dot(ddir) for ddir in dirs]
 
     index_max = 0
@@ -426,10 +426,11 @@ def collision_possibile_dir(neighbors: bytes) -> Directions:
     # 0 01 0 -> right block
     # 0 00 1 -> lower block
     collision_possibilites = {Directions.up,Directions.down,Directions.left, Directions.right}
-    if neighbors & 0b1_00_0: collision_possibilites -= {Directions.down}
-    if neighbors & 0b0_10_0: collision_possibilites -= {Directions.right}
-    if neighbors & 0b0_01_0: collision_possibilites -= {Directions.left}
-    if neighbors & 0b0_00_1: collision_possibilites -= {Directions.up}
+    if neighbors & 0b1_00_0: collision_possibilites -= {Directions.up}
+    #these break down with mutiple blocks
+    # if neighbors & 0b0_10_0: collision_possibilites -= {Directions.right}
+    # if neighbors & 0b0_01_0: collision_possibilites -= {Directions.left}
+    if neighbors & 0b0_00_1: collision_possibilites -= {Directions.down}
 
     return collision_possibilites
 
