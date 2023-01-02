@@ -217,7 +217,7 @@ class Player(GraphicsObject, load_player_properties()):
 
         #closes the programm (for debugging purposes only)
         if keys[self.characters["e"]]:
-            os.abort()
+            sys.exit()
 
         if keys[self.characters["v"]]:
             print("saving")
