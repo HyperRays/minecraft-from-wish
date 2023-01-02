@@ -55,14 +55,14 @@ def mountains(x,y, pixelpos):
             return Snow(pixelpos)
         return Air(pixelpos)
 
-
+biome_count = 4
 
 def test_render(x,y, chunk: Chunk):
     coordinates_glob = chunk.get_chunk_coordinates(vec2d(x,y))
     coordinates = vec2d(x= (coordinates_glob.x*BLOCK_DIMENSIONS[0]), y= (coordinates_glob.y*BLOCK_DIMENSIONS[1]))
     chunk_coords = chunk.position
 
-    match floor(chunk_coords.x*(1/(biome_spacing+1)) % 3):
+    match floor(chunk_coords.x*(1/(biome_spacing+1)) % biome_count):
         case 0: return mountains(coordinates_glob.x, coordinates_glob.y, coordinates)
         case 1: return grassland(coordinates_glob.x, coordinates_glob.y, coordinates)
         case 2: return desert(coordinates_glob.x, coordinates_glob.y, coordinates)
