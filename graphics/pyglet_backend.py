@@ -14,6 +14,8 @@ def __event_loop(window: pyglet.window.Window, cls, update_closure: Any, input_c
     @window.event
     def on_key_press(symbol, modifiers):
         loop.run_until_complete(input_closure(cls, symbol))
+    
+    pyglet.app.run()
 
 class PygletBackend:
     backend = "pyglet"
