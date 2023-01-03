@@ -8,14 +8,14 @@ collider_n = "collider"
 
 class Material:
     
-    AIR = 0
-    ICE = 1
-    SAND = 2
-    GRASS = 3
-    DIRT = 4
-    WATER = 5
-    STONE = 6
-    SNOW = 7
+    AIR = "Air"
+    ICE = "Ice"
+    SAND = "Sand"
+    GRASS = "Grass"
+    DIRT = "Dirt"
+    WATER = "Water"
+    STONE = "Stone"
+    SNOW = "Snow"
 
     @staticmethod
     def map(material):
