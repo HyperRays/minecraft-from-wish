@@ -1,7 +1,7 @@
 import pyglet
 import os
 
-window = pyglet.window.Window()
+window = pyglet.window.Window(700,700)
 path = "sand_block.png"
 fullname = os.path.join("../assets/images", path)
 image = pyglet.image.load(fullname)
