@@ -179,6 +179,8 @@ class Player(GraphicsObject, load_player_properties()):
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
                                 if len(poss) == 0:
+                                    self.force.y += 100
+                                    self.collided_dir[Directions.down] = True
                                     continue
                                 dir = -relative_position(obj.collider, self.collider, list(poss))
                                 self.collided_dir[dir] = True
