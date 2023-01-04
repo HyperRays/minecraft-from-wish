@@ -35,15 +35,7 @@ class _Timed:
         self.total_time = self.total_time - self.target_time
         if new_target_time != None:
             self.target_time = new_target_time
-
-@dataclass(slots= True)
-class Image:
-    image: pygame.Surface
-    name: str
-
-    def copy(self):
-        return Image(image=self.image.copy(), name= copy.deepcopy(self.name))
-
+            
 class PygameBackend:
     screen: pygame.Surface | None = None
     size: tuple[float, float] | None = None
@@ -77,8 +69,8 @@ class PygameBackend:
         sync = _Timed(1_000_000_000/60)
         clock = pygame.time.Clock()
         while True:
-            sync.poll()
-            clock.tick_busy_loop()
+            # sync.poll()
+            # clock.tick_busy_loop()
             keys = pygame.key.get_pressed()
             pygame.event.poll()
             for event in pygame.event.get():
@@ -93,20 +85,21 @@ class PygameBackend:
                 if order in cls.layers:
                     cls.screen.blit(cls.layers[order], (0,0))
                     cls.layers[order].fill((0,0,0,0))
-
-            if sync.reached():
-                logging.debug(f"Updated Frame")
-                pygame.display.update()
-                if (fps := clock.get_fps()) != 0:
-                    sync.reset(new_target_time=1_000_000_000/fps)
-                else:
-                    sync.reset()
+            pygame.display.update()
+            # if sync.reached():
+            #     logging.debug(f"Updated Frame")
+            #     pygame.display.update()
+            #     if (fps := clock.get_fps()) != 0:
+            #         sync.reset(new_target_time=1_000_000_000/fps)
+            #     else:
+            #         sync.reset()
 
     @classmethod
-    def init(cls, size: tuple[float, float], title: str):
+    def init(cls, size: tuple[float, float], title: str, fullscreen = False):
 
         pygame.init()   
-        cls.screen = pygame.display.set_mode(size)
+        cls.screen = pygame.display.set_mode(size, DOUBLEBUF, 64)
+        pygame.event.set_allowed([QUIT, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d])
         cls.size = size
         pygame.display.set_caption(title)
 
@@ -119,10 +112,14 @@ class PygameBackend:
     
     @classmethod
     def create_layer(cls, layer_name: str):
-        cls.layers[layer_name] = pygame.surface.Surface(cls.size)
-        cls.layers[layer_name] = cls.layers[layer_name].convert_alpha()
-        cls.layers[layer_name].fill((0,0,0,0))
+        cls.layers[layer_name] = cls.create_empty_texture(cls.size)
 
     @classmethod
     def set_render_layers(cls, render_layers: list):
         cls.render_order = render_layers
+    
+    @staticmethod 
+    def create_empty_texture(size) -> pygame.surface.Surface:
+        surface = pygame.surface.Surface(size).convert_alpha()
+        surface.fill((0,0,0,0))
+        return surface

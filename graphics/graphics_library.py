@@ -6,12 +6,12 @@ Currently there is only one (pygame) but the plan is to expand this and make it 
 import os
 import logging
 from typing import Any
-from pygame_backend import PygameBackend, Image
+from pygame_backend import PygameBackend
 import asyncio
 
 class GraphicsObject(PygameBackend):
     objects = list()
-    textures: list[Image] = list()
+    textures: list = list()
 
     def __init__(self) -> None:
         self.objects += [self]
