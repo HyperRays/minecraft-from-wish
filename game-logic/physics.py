@@ -329,7 +329,7 @@ class Directions:
     up = vec2d(0,1)
     down = vec2d(0,-1)
 
-def quad_quad_intersection(quad1: Quad, quad2: Quad) -> tuple[bool, tuple | Directions]:
+def quad_quad_intersection(quad1: Quad, quad2: Quad) -> bool:
 
     left = quad1.furthest_in_dir(Directions.left).x < quad2.furthest_in_dir(Directions.right).x
     right = quad1.furthest_in_dir(Directions.right).x > quad2.furthest_in_dir(Directions.left).x

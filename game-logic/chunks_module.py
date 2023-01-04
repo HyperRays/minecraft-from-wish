@@ -12,6 +12,8 @@ import pickle
 from prelude import *
 import itertools
 import blocks
+from helper_functions import create_collider
+from uuid import uuid4
 
 window.init((300,300),"test objects")
 
@@ -27,10 +29,11 @@ class Chunk(GraphicsObject):
         # chunks do not get immediately added to the objects list, but get loaded in 
         # dynamicaly depending on the players coordinates
         self.internal_objects = [[None for _ in range(CHUNK_DIMENSIONS[1])] for _ in range(CHUNK_DIMENSIONS[0])]
+        glob_coord = vec2d(vec.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], vec.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
+        self.collider = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
         assert(vec.x%1==0 and vec.y%1==0)
         self.position = vec
         self.on_first_load(mapping_func)
-
     
     def get_chunk_coordinates(self, vec: vec2d) -> vec2d:
         """
@@ -76,6 +79,7 @@ class Chunk(GraphicsObject):
     def save(self) -> dict:
         save_dict = {
             "position": self.position,
+            "collider": self.collider,
             "internal_objects_pickled": [[y.save() for y in x] for x in self.internal_objects]
         }
         return pickle.dumps(save_dict)
@@ -87,5 +91,12 @@ class Chunk(GraphicsObject):
         save_dict = pickle.loads(b)
         self.internal_objects =  [[blocks.Material.return_material(y) for y in x] for x in save_dict["internal_objects_pickled"]]
         self.position = save_dict["position"]
+
+        #for backwards compatibilty
+        if "collider" not in save_dict:
+            glob_coord = vec2d(self.position.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], self.position.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
+            self.collider = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
+        else:
+            self.collider = save_dict["collider"]
 
         return self

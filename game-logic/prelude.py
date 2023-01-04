@@ -10,7 +10,7 @@ try: IMPORT_GRAPHICS_LIB
 except: IMPORT_GRAPHICS_LIB = True
 
 if IMPORT_GRAPHICS_LIB:
-    from graphics.graphics_library import GraphicsObject, Image
+    from graphics.graphics_library import GraphicsObject
     import pygame
     from pygame.locals import *
 

@@ -1,11 +1,9 @@
-from prelude import *
+from shapes import *
+from physics import Directions
 # creates a collider for the tiles and player on update
 def create_collider(position, w, h, collider: Quad = None) -> Quad:
     if collider != None:
-        collider.a = position
-        collider.b = position + vec2d(w, 0)
-        collider.c = position + vec2d(0,h)
-        collider.d = position + vec2d(w,h)
+        collider.a,collider.b,collider.c,collider.d = position, position + vec2d(w, 0), position + vec2d(0,h), position + vec2d(w,h)
         return collider
     else:
         return Quad(position, position + vec2d(w, 0), position + vec2d(0,h), position + vec2d(w,h))

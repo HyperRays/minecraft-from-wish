@@ -33,7 +33,6 @@ class Player(GraphicsObject, load_player_properties()):
 
         #create the collider
         self.collider = create_collider(self.position, self.w, -self.h)
-        self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1])
     
         # the forces that are applied to the player
         self.force = vec2d(0,0)
@@ -153,12 +152,10 @@ class Player(GraphicsObject, load_player_properties()):
         chunks: list[Chunk] = []
         for chunk_pos in chunks_coords:
             chunks += [chunk_manager.get_chunk(chunk_pos)]
-       
+
         # draws a outline around the chunk (for debugging purposes only)
         for chunk in chunks:
-            glob_coord = vec2d(chunk.position.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], chunk.position.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
-            tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
-            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
+            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(chunk.collider.b).into_tuple(), camera.screen_position(chunk.collider.a).into_tuple(), camera.screen_position(chunk.collider.c).into_tuple(), camera.screen_position(chunk.collider.d).into_tuple()], width = 2)
         # draws the collider around the player (for debugging purposes only)
         pygame.draw.polygon(self.player_debug_layer, (100,200,140) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
 
@@ -182,6 +179,8 @@ class Player(GraphicsObject, load_player_properties()):
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
                                 if len(poss) == 0:
+                                    self.force.y += 100
+                                    self.collided_dir[Directions.down] = True
                                     continue
                                 dir = -relative_position(obj.collider, self.collider, list(poss))
                                 self.collided_dir[dir] = True
@@ -221,7 +220,8 @@ class Player(GraphicsObject, load_player_properties()):
 
         if keys[self.characters["v"]]:
             print("saving")
-            self.chunk_mgr .save()
+            self.chunk_mgr.save()
+
         
         if keys[self.characters["l"]]:
             print("loading")

@@ -25,12 +25,6 @@ class ChunkManager(GraphicsObject):
         self._chunk_dict: dict[vec2d, Chunk] = dict()
         graphics.create_layer(self.chunks_layer)
         graphics.create_layer(self.chunks_debug_layer)
-    
-    def create_chunk(self, chunk: Chunk) -> bool:
-        if chunk.position in self._chunk_dict:
-            return False
-        else:
-            self._chunk_dict.update({chunk.position: chunk})
 
     def chunk_exists(self, pos: vec2d) -> bool:
         return pos in self._chunk_dict
@@ -48,6 +42,7 @@ class ChunkManager(GraphicsObject):
                 if pos in self._chunk_dict:
                     self._renderables += [self._chunk_dict[pos]]
                 else:
+                    pass
                     self.add_chunk(Chunk(pos, terrain_gen_fn))
                     self._renderables += [self._chunk_dict[pos]]
                 

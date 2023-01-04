@@ -7,6 +7,16 @@ position_n = "position"
 collider_n = "collider"
 
 class Material:
+
+    #remains for backward compatibility
+    compat_AIR = "Air"
+    compat_ICE = "Ice"
+    compat_SAND = "Sand"
+    compat_GRASS = "Grass"
+    compat_DIRT = "Dirt"
+    compat_WATER = "Water"
+    compat_STONE = "Stone"
+    compat_SNOW = "Snow"
     
     AIR = 1 << 0
     ICE = 1 << 1
@@ -25,8 +35,19 @@ class Material:
             case Material.SAND: return Sand
             case Material.GRASS: return Grass
             case Material.WATER: return Water
-            case Material.Stone: return Stone
-            case Material.Snow: return Snow
+            case Material.STONE: return Stone
+            case Material.SNOW: return Snow
+    
+    @staticmethod
+    def __compat_map(material):
+        match material:
+            case Material.compat_AIR: return Air
+            case Material.compat_ICE: return Ice
+            case Material.compat_SAND: return Sand
+            case Material.compat_GRASS: return Grass
+            case Material.compat_WATER: return Water
+            case Material.compat_STONE: return Stone
+            case Material.compat_SNOW: return Snow
             
     
     @staticmethod
@@ -35,6 +56,10 @@ class Material:
         if (cls := Material.map(mat := pickle.loads(b)[material_n])) != None:
             return cls.load(b)
         else:
+            if (cls := Material.__compat_map(mat := pickle.loads(b)[material_n])) != None:
+                return cls.load(b)
+            else:
+                pass
             raise TypeError(f"No material called {mat}")
 
 #square helper class, so that the collider creation and image (texture) loading is handled and 
@@ -52,7 +77,6 @@ class Square(GraphicsObject):
     
     async def update(self):
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        # self.render()
         if self.render_collider_bounds and not self.render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
         if self.render_collision_detected:
