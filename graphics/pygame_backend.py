@@ -123,3 +123,18 @@ class PygameBackend:
         surface = pygame.surface.Surface(size).convert_alpha()
         surface.fill((0,0,0,0))
         return surface
+    
+    @staticmethod
+    def _rescale_image(texture, height = None, width = None, factor = None) -> tuple[int, int]: 
+        (a,b) = texture.get_size()
+        ratio = a/b
+        if height != None and width != None:
+            (w,h) = width, height
+        if height != None:
+            (w,h) = (height,height/ratio)
+        elif width != None:
+            (w,h) = (width*ratio,width)
+        elif factor != None:
+            (w,h) = (a*factor,b*factor)
+        del ratio
+        return w,h, pygame.transform.scale(texture, (w,h))
