@@ -1,5 +1,6 @@
 from startup import *
 from blocks import *
+from player import Player
 class Mouse(GraphicsObject):
 
     graphics.create_layer("mouse_layer")
@@ -12,6 +13,10 @@ class Mouse(GraphicsObject):
     def __init__(self) -> None:
         super().__init__()
         self.collider = Point(vec2d(0,0))
+        for obj in self.objects:
+            if type(obj) == Player:
+                self.player = obj
+
 
         #hide the cursor
         #https://stackoverflow.com/a/40628090
@@ -25,6 +30,11 @@ class Mouse(GraphicsObject):
         
         self = cls.__new__(cls)
         self.collider = Point(vec2d(0,0))
+
+        for obj in self.objects:
+            if type(obj) == Player:
+                self.player = obj
+
 
         #hide the cursor
         #https://stackoverflow.com/a/40628090
@@ -60,19 +70,19 @@ class Mouse(GraphicsObject):
         tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
         pygame.draw.polygon(self.mouse_debug_layer, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
 
-        
-        # go through every block in the chunk and find which one the mouse is on
-        for x,obj_x in enumerate(chunk.internal_objects):
-            for y,obj in enumerate(obj_x):
-                if obj != None:
-                    if intersect(self.collider, obj.collider):
-                        obj.render_collision_detected = True
-                        #set the block to something else if the mouse is pressed
-                        if mouse_down_left:
-                            chunk.set(vec2d(x,y), Ice(obj.position))
-                        if mouse_down_right and obj.mineable:
-                            chunk.set(vec2d(x,y), Air(obj.position))
+        if not intersect(self.collider, self.player.collider):
+            # go through every block in the chunk and find which one the mouse is on
+            for x,obj_x in enumerate(chunk.internal_objects):
+                for y,obj in enumerate(obj_x):
+                    if obj != None:
+                        if intersect(self.collider, obj.collider):
+                            obj.render_collision_detected = True
+                            #set the block to something else if the mouse is pressed
+                            if mouse_down_left:
+                                chunk.set(vec2d(x,y), Ice(obj.position))
+                            if mouse_down_right and obj.mineable:
+                                chunk.set(vec2d(x,y), Air(obj.position))
 
-                    obj.render_collider_bounds = True
+                        obj.render_collider_bounds = True
 
         
