@@ -427,7 +427,7 @@ def collision_possibile_dir(neighbors: bytes) -> Directions:
     # 0 00 1 -> lower block
     collision_possibilites = {Directions.up,Directions.down,Directions.left, Directions.right}
     if neighbors & 0b1_00_0: collision_possibilites -= {Directions.up}
-    #these break down with mutiple blocks
+    # these break down with mutiple blocks
     # if neighbors & 0b0_10_0: collision_possibilites -= {Directions.right}
     # if neighbors & 0b0_01_0: collision_possibilites -= {Directions.left}
     if neighbors & 0b0_00_1: collision_possibilites -= {Directions.down}

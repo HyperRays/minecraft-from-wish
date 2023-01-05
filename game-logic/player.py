@@ -44,14 +44,19 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.left: False,
             Directions.right: False
         }
+        
+        self.furthest_dist = {
+            Directions.up: 0,
+            Directions.down: 0,
+            Directions.left: 0,
+            Directions.right: 0
+        }
 
         # create window boundaries (so that the chunks can get loaded in and out dynamically)
         self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], -window.size[1])
         
         # internal refrence to chunk manager
         self.chunk_mgr = chunk_manager
-
-        self.speed_mult = 1
 
     def save(self) -> bytes:
         save_dict = {
@@ -85,6 +90,13 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.right: False
         }
 
+        self.furthest_dist = {
+            Directions.up: 0,
+            Directions.down: 0,
+            Directions.left: 0,
+            Directions.right: 0
+        }
+
         return self
 
     async def render(self):
@@ -107,38 +119,39 @@ class Player(GraphicsObject, load_player_properties()):
             if self.force.x < 0:
                 self.force.x = 0
 
-        self.force.x = self.force.x * self.speed_mult
+        self.force.x = self.force.x * self.speed_mutiplier
 
         # adds force to player      
         self.position += self.force
-
-        # renews collider
-        self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
 
         #finds in which chunk the player is in through the chunk manager
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
 
-        # use the window boundaries to find sout which chunks to update
-        self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1], collider= self.window_quad)
-                   
-        render_boundaries =     (chunk_manager.find_chunk_pos(self.window_quad.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.c + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                )
+        # renews collider
+        if self.force != vec2d(0,0):
+            self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
+
+            # use the window boundaries to find sout which chunks to update
+            self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1], collider= self.window_quad)
+                    
+            render_boundaries =     (chunk_manager.find_chunk_pos(self.window_quad.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.c + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    )
+            
+            # one chunk margin to have smooth transition
+            x_upper_bound = render_boundaries[1].x+1
+            x_lower_bound = render_boundaries[0].x-1
         
-        # one chunk margin to have smooth transition
-        x_upper_bound = render_boundaries[1].x+1
-        x_lower_bound = render_boundaries[0].x-1
-    
-        y_upper_bound = render_boundaries[0].y+1
-        y_lower_bound = render_boundaries[2].y-1
+            y_upper_bound = render_boundaries[0].y+1
+            y_lower_bound = render_boundaries[2].y-1
 
-        bounds_min = vec2d(x_lower_bound, y_lower_bound)
-        bounds_max = vec2d(x_upper_bound,y_upper_bound)
+            bounds_min = vec2d(x_lower_bound, y_lower_bound)
+            bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
-        chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
+            chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
 
         #padding is added so that player won't go though blocks before chunk is detected 
         chunks_coords: set[vec2d] = set(
@@ -169,6 +182,7 @@ class Player(GraphicsObject, load_player_properties()):
         }
 
         
+
 
         for chunk in chunks:
             for x,obj_x in enumerate(chunk.internal_objects):
