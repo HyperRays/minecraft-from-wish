@@ -102,7 +102,15 @@ class Player(GraphicsObject, load_player_properties()):
     async def render(self):
         # render the image of the player to the screen accoring to the camera
         self.player_layer.blit(self.texture, camera.screen_position(self.position).into_tuple())
-    
+
+        # draws a outline around the chunk (for debugging purposes only)
+        for chunk in self.chunks:
+            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(chunk.collider.b).into_tuple(), camera.screen_position(chunk.collider.a).into_tuple(), camera.screen_position(chunk.collider.c).into_tuple(), camera.screen_position(chunk.collider.d).into_tuple()], width = 2)
+        
+        # draws the collider around the player (for debugging purposes only)
+        pygame.draw.polygon(self.player_debug_layer, (100,200,140) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+
+
     async def update(self):
 
         # checks in which direction the player is colliding and sets the force in that axis to 0 (bad)
@@ -162,15 +170,9 @@ class Player(GraphicsObject, load_player_properties()):
             )
         )
 
-        chunks: list[Chunk] = []
+        self.chunks: list[Chunk] = []
         for chunk_pos in chunks_coords:
-            chunks += [chunk_manager.get_chunk(chunk_pos)]
-
-        # draws a outline around the chunk (for debugging purposes only)
-        for chunk in chunks:
-            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(chunk.collider.b).into_tuple(), camera.screen_position(chunk.collider.a).into_tuple(), camera.screen_position(chunk.collider.c).into_tuple(), camera.screen_position(chunk.collider.d).into_tuple()], width = 2)
-        # draws the collider around the player (for debugging purposes only)
-        pygame.draw.polygon(self.player_debug_layer, (100,200,140) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+            self.chunks += [chunk_manager.get_chunk(chunk_pos)]
 
         #resets all the forces
         self.force = vec2d(0,0)
@@ -184,11 +186,13 @@ class Player(GraphicsObject, load_player_properties()):
         
 
 
-        for chunk in chunks:
+        for chunk in self.chunks:
             for x,obj_x in enumerate(chunk.internal_objects):
                 for y,obj in enumerate(obj_x):
+                        obj.render_collider_bounds()
                         if obj != None and obj.collision:
                             if intersect(self.collider, obj.collider):
+                                obj.render_collision_detected()
                                 self.speed_mult = obj.speed_mutiplier
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
@@ -198,9 +202,7 @@ class Player(GraphicsObject, load_player_properties()):
                                     continue
                                 dir = -relative_position(obj.collider, self.collider, list(poss))
                                 self.collided_dir[dir] = True
-                                obj.render_collision_detected = True
 
-                        obj.render_collider_bounds = True
 
         #adds the gravity force
         self.force += vec2d(0,-GRAVITY_ACCEL)
