@@ -28,7 +28,7 @@ class Chunk(GraphicsObject):
     def __init__(self, vec: vec2d, mapping_func) -> None:
         # chunks do not get immediately added to the objects list, but get loaded in 
         # dynamicaly depending on the players coordinates
-        self.internal_objects = [[None for _ in range(CHUNK_DIMENSIONS[1])] for _ in range(CHUNK_DIMENSIONS[0])]
+        self.internal_objects: list[list[None | Chunk]] = [[None for _ in range(CHUNK_DIMENSIONS[1])] for _ in range(CHUNK_DIMENSIONS[0])]
         glob_coord = vec2d(vec.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], vec.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
         self.collider = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
         assert(vec.x%1==0 and vec.y%1==0)

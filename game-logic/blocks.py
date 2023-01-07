@@ -69,20 +69,26 @@ class Square(GraphicsObject):
         self.position = position
         self.texture = texture_handler.get_texture(self.tex_name)
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
+    def render_collider_bounds(self) -> None:
+        self._render_collider_bounds = True
+    
+    def render_collision_detected(self) -> None:
+        self._render_collision_detected = True
+
     async def render(self):
         chunk_manager.get_layer().blit(self.texture, camera.screen_position(self.position).into_tuple())
-    
+        if self._render_collider_bounds and not self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+        elif self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
     async def update(self):
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        if self.render_collider_bounds and not self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
 
     def save(self) -> bytes:
         save_dict = {
@@ -100,8 +106,8 @@ class Square(GraphicsObject):
         self.position = save_dict[position_n]
         self.texture = texture_handler.get_texture(cls.tex_name)
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
 
         return self
 
@@ -113,17 +119,17 @@ class Air(Square, load_block_properties("air.toml")):
     def __init__(self, position: vec2d) -> None:
         self.position = position
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
     async def update(self):
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        if self.render_collider_bounds and not self.render_collision_detected:
+        if self._render_collider_bounds and not self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
+        if self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
     async def render(self):
         pass
@@ -134,8 +140,8 @@ class Air(Square, load_block_properties("air.toml")):
         save_dict = pickle.loads(b)
         self.position = save_dict[position_n]
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
 
         return self
 
@@ -214,13 +220,30 @@ class Water(Square, load_block_properties("water.toml")):
         self.texture = self.texture1
 
         #create the collider
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
+        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1])
 
         #set the debugging outlines of the collider
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
     async def render(self):
+
+        #setting the collider outlines and collision boundaries
+        if self._render_collider_bounds and not self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+        if self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
+        
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
+        chunk_manager.get_layer().blit(self.texture, camera.screen_position(self.position).into_tuple())
+    
+
+    async def update(self):
+        #renew the collider and render the image
+        # self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
+        # self.render()
 
         #after certain time switch the textures
         self.timer.poll()
@@ -234,22 +257,6 @@ class Water(Square, load_block_properties("water.toml")):
             
             self.timer.reset()
 
-        chunk_manager.get_layer().blit(self.texture, camera.screen_position(self.position).into_tuple())
-    
-
-    async def update(self):
-        #renew the collider and render the image
-        # self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        # self.render()
-
-        #setting the collider outlines and collision boundaries
-        if self.render_collider_bounds and not self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
     
     def save(self) -> bytes:
         save_dict = {
@@ -271,8 +278,8 @@ class Water(Square, load_block_properties("water.toml")):
         self.texture1 = texture_handler.get_texture(cls.tex_name1)
         self.texture2 = texture_handler.get_texture(cls.tex_name2)
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
 
         if self.current_tex == 0:
             self.texture = self.texture1
