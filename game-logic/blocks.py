@@ -176,7 +176,7 @@ class Grass(Square, load_block_properties("grass.toml")):
 
     graphics.create_layer("grass_layer")
 
-    async def render(self):
+    async def pygame_render(self, *_):
         graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
 
 class Dirt(Square, load_block_properties("dirt.toml")):
