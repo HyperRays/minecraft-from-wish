@@ -16,6 +16,7 @@ from helper_functions import create_collider
 from uuid import uuid4
 
 window.init((300,300),"test objects")
+import startup
 
 class Chunk(GraphicsObject):
     # all chunks are squares, and predefined sizes
@@ -34,6 +35,10 @@ class Chunk(GraphicsObject):
         assert(vec.x%1==0 and vec.y%1==0)
         self.position = vec
         self.on_first_load(mapping_func)
+        
+        if self.backend == "pygame":
+            self.render = self.pygame_render
+        self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
     
     def get_chunk_coordinates(self, vec: vec2d) -> vec2d:
         """
@@ -50,11 +55,14 @@ class Chunk(GraphicsObject):
                 if object != None:
                     await object.update()
     
-    async def render(self):
-        for object in itertools.chain(*self.internal_objects):
-                if object != None:
-                    await object.render()
-            
+    async def pygame_render(self):
+        for x,object_y in enumerate(self.internal_objects):
+            for y,object in enumerate(reversed(object_y)):
+                    if object != None:
+                        await object.render(x,y,self.intermediate_tex)
+        
+        startup.chunk_manager.get_layer().blit(self.intermediate_tex, startup.camera.screen_position(vec2d(self.position.x * CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0], self.position.y * CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1] + CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1] )).into_tuple())
+    
     def get(self, location: vec2d):
         try:
             return self.internal_objects[location.x][location.y]
@@ -98,5 +106,10 @@ class Chunk(GraphicsObject):
             self.collider = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
         else:
             self.collider = save_dict["collider"]
+        
+        if self.backend == "pygame":
+            self.render = self.pygame_render
+        
+        self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
 
         return self
