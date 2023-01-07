@@ -13,12 +13,15 @@ from prelude import *
 import itertools
 import blocks
 from helper_functions import create_collider
-from uuid import uuid4
 
 window.init((300,300),"test objects")
 import startup
 
 class Chunk(GraphicsObject):
+    # with slots, the object doesn't need to make a new dict for every instance
+    #works like a named tuple
+    #https://stackoverflow.com/a/1336890
+    __slots__ = ("internal_objects", "collider", "position")
     # all chunks are squares, and predefined sizes
 
 
@@ -38,7 +41,7 @@ class Chunk(GraphicsObject):
         
         if self.backend == "pygame":
             self.render = self.pygame_render
-        self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
+            self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
     
     def get_chunk_coordinates(self, vec: vec2d) -> vec2d:
         """
@@ -109,7 +112,6 @@ class Chunk(GraphicsObject):
         
         if self.backend == "pygame":
             self.render = self.pygame_render
-        
-        self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
+            self.intermediate_tex = graphics.create_empty_texture((CHUNK_DIMENSIONS[0]*BLOCK_DIMENSIONS[0],CHUNK_DIMENSIONS[1]*BLOCK_DIMENSIONS[1]))
 
         return self

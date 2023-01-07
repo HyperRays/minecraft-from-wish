@@ -64,7 +64,10 @@ class Material:
 
 #square helper class, so that the collider creation and image (texture) loading is handled and 
 class Square(GraphicsObject):
-
+    # with slots, the object doesn't need to make a new dict for every instance
+    #works like a named tuple
+    #https://stackoverflow.com/a/1336890
+    __slots__ = ("position", "texture", "collider","_render_collider_bounds","_render_collision_detected","_first")
     def __init__(self, position: vec2d) -> None:
         self.position = position
         self.texture = texture_handler.get_texture(self.tex_name)
