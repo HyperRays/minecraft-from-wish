@@ -3,7 +3,6 @@ This is the container for the different blocks
 """
 
 IMPORT_GRAPHICS_LIB = False
-import asyncio
 from dataclasses import dataclass
 import pickle
 
@@ -14,11 +13,10 @@ import itertools
 import blocks
 from helper_functions import create_collider
 
-window.init((300,300),"test objects")
 import startup
 
 class Chunk(GraphicsObject):
-    # with slots, the object doesn't need to make a new dict for every instance
+    #with slots, the object doesn't need to make a new dict for every instance
     #works like a named tuple
     #https://stackoverflow.com/a/1336890
     __slots__ = ("internal_objects", "collider", "position")
@@ -31,7 +29,7 @@ class Chunk(GraphicsObject):
 
     def __init__(self, vec: vec2d, mapping_func) -> None:
         # chunks do not get immediately added to the objects list, but get loaded in 
-        # dynamicaly depending on the players coordinates
+        # dynamiclly depending on the players coordinates
         self.internal_objects: list[list[None | Chunk]] = [[None for _ in range(CHUNK_DIMENSIONS[1])] for _ in range(CHUNK_DIMENSIONS[0])]
         glob_coord = vec2d(vec.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], vec.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
         self.collider = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])

@@ -1,6 +1,5 @@
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
 from prelude import *
 from chunks_module import Chunk
 from chunk_manager import ChunkManager
@@ -11,7 +10,7 @@ import pickle
 
 from helper_functions import *
 # initialize the window
-window.init(WINDOW_DIMENSIONS,"test chunk mgr")
+window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=True)
 
 texture_handler = TextureHandler()
 

@@ -72,10 +72,11 @@ class ChunkManager(GraphicsObject):
     
     def save(self):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
+        # will change this after adding gui
         with open("test.world", "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def redifine(self, other):
+    def redefine(self, other):
         self._chunk_dict = other._chunk_dict 
         self._renderables = []
 

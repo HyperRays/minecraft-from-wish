@@ -1,14 +1,14 @@
 from startup import *
 from load_properties_config import load_block_properties
 
-#stored values in variable to reduce typo errors
+# stored values in variable to reduce typo errors
 material_n = "material"
 position_n = "position"
 collider_n = "collider"
 
 class Material:
 
-    #remains for backward compatibility
+    # remains for backward compatibility
     compat_AIR = "Air"
     compat_ICE = "Ice"
     compat_SAND = "Sand"
@@ -17,6 +17,7 @@ class Material:
     compat_WATER = "Water"
     compat_STONE = "Stone"
     compat_SNOW = "Snow"
+    # ---
     
     AIR = 1 << 0
     ICE = 1 << 1
@@ -62,18 +63,20 @@ class Material:
                 pass
             raise TypeError(f"No material called {mat}")
 
-#square helper class, so that the collider creation and image (texture) loading is handled and 
+# square helper class, so that the collider creation and image (texture) loading is handled and 
 class Square(GraphicsObject):
     # with slots, the object doesn't need to make a new dict for every instance
-    #works like a named tuple
-    #https://stackoverflow.com/a/1336890
+    # works like a named tuple
+    # https://stackoverflow.com/a/1336890
     __slots__ = ("position", "texture", "collider","_render_collider_bounds","_render_collision_detected","_first")
     def __init__(self, position: vec2d) -> None:
         self.position = position
         self.texture = texture_handler.get_texture(self.tex_name)
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
+        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1])
         self._render_collider_bounds = False
         self._render_collision_detected = False
+
+        # only render once on the intermediate chunk texture for performance reasons (pygame)
         self._first = True
         if self.backend == "pygame":
             self.render = self.pygame_render
@@ -84,7 +87,7 @@ class Square(GraphicsObject):
     def render_collision_detected(self) -> None:
         self._render_collision_detected = True
 
-    async def pygame_render(self, x,y,chunk_intermediate_layer: pygame.Surface):
+    async def pygame_render(self, x, y, chunk_intermediate_layer: pygame.Surface):
         if self._first:
             self._first = False
             chunk_intermediate_layer.blit(self.texture, (x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1]))
@@ -93,11 +96,12 @@ class Square(GraphicsObject):
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
         elif self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
+        
         self._render_collider_bounds = False
         self._render_collision_detected = False
 
     async def update(self):
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
+        pass
 
     def save(self) -> bytes:
         save_dict = {
@@ -126,6 +130,8 @@ class Square(GraphicsObject):
 
 #Air tile
 class Air(Square, load_block_properties("air.toml")):
+
+    material = Material.AIR
 
     #Air is transparent so has to have some custom parts defined
 
@@ -179,6 +185,7 @@ class Grass(Square, load_block_properties("grass.toml")):
 
     graphics.create_layer("grass_layer")
 
+    # grass should be in front of the player
     async def pygame_render(self, *_):
         graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
 
