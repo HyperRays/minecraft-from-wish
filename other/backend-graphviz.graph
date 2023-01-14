@@ -1,0 +1,19 @@
+digraph GraphicsBackend{
+ node [fontname=Arial];
+ edge [fontname=Arial, labeldistance="10"];
+
+ PygameBackend [shape=box,label="PygameBackend"];
+ 
+ GraphicsObject [shape=box,label="GraphicsObject"];
+ 
+ 
+ SubGraph {
+    PygameBackend -> GraphicsObject [style=dotted, dir=back, color=lightblue, label="   callback functions", fontcolor=lightblue];
+    PygameBackend -> GraphicsObject [style=dashed, color=orangered];
+    input [shape=none,label="input"];
+    update [shape=none,label="update"];
+    render [shape=none,label="render"];
+    GraphicsObject -> {input, update, render};
+ }
+
+}
