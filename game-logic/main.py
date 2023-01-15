@@ -16,11 +16,11 @@ camera.update_position(-vec2d(window.size[0]/2,window.size[1]/2))
 
 Background()
 player = Player(vec2d(0,100))
-
 mouse = Mouse()
 
 # graphics.set_render_layers(["bg", "chunks_layer",  "player_layer", "grass_layer", "mouse_layer", "chunks_debug", "player_debug_layer", "mouse_debug_layer"])
 graphics.set_render_layers(["bg","chunks_layer", "player_layer", "grass_layer", "mouse_layer"])
+
 graphics.create_layer("bg")
 graphics.layers["bg"].fill((0,0,100))
 window.run()

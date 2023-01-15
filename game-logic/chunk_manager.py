@@ -70,10 +70,10 @@ class ChunkManager(GraphicsObject):
     def set_all(self):
         self._renderables = list(self._chunk_dict.values())
     
-    def save(self):
+    def save(self, path):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
         # will change this after adding gui
-        with open("test.world", "wb") as f:
+        with open(path, "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     def redefine(self, other):
@@ -81,10 +81,10 @@ class ChunkManager(GraphicsObject):
         self._renderables = []
 
     @classmethod
-    def load(cls):
+    def load(cls, path: str):
 
         self = cls.__new__(cls)
-        with open("test.world", "rb") as f:
+        with open(path, "rb") as f:
             _chunk_dict_save: dict[vec2d, Chunk] = pickle.load(f)
         self._chunk_dict = dict((key,Chunk.load(item)) for (key,item) in _chunk_dict_save.items())
         self._renderables = []
