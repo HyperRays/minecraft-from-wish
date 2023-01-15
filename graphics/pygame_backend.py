@@ -13,8 +13,6 @@ import contextlib
 with contextlib.redirect_stdout(None):
     import pygame
     from pygame.locals import *
-    
-import copy
 
 import asyncio
 class _Timed:
@@ -65,7 +63,7 @@ class PygameBackend:
 
     @classmethod
     # the render loop
-    async def event_loop(cls, update_closure: Any, input_closure: Any, render_closure: Any) -> None:
+    async def event_loop(cls, update_closure: Any, input_closure: Any, render_closure: Any, on_resize: Any) -> None:
         sync = _Timed(1_000_000_000/60)
         clock = pygame.time.Clock()
         while True:
@@ -76,9 +74,12 @@ class PygameBackend:
             for event in pygame.event.get():
                 if event.type == QUIT:
                     return
-
-            cls.screen.blit(cls.background, (0, 0))
-            # the update closure (function) is passed by the GraphicsObject function
+                # if event.type == VIDEORESIZE:
+                #     cls.size = pygame.display.get_surface().get_size()
+                #     on_resize()
+                #     for key,layer in cls.layers.items():
+                #         cls.layers[key] = pygame.transform.scale(layer, cls.size)
+            # the update, input and render closure (function) is passed by the GraphicsObject function
             await asyncio.gather(input_closure(cls, keys), update_closure(cls))
             await render_closure(cls)
             for order in cls.render_order:
@@ -87,28 +88,28 @@ class PygameBackend:
                     cls.layers[order].fill((0,0,0,0))
             pygame.display.update()
             # if sync.reached():
-            #     logging.debug(f"Updated Frame")
+            #     await render_closure(cls)
+            #     for order in cls.render_order:
+            #         if order in cls.layers:
+            #             cls.screen.blit(cls.layers[order], (0,0))
+            #             cls.layers[order].fill((0,0,0,0))
+
             #     pygame.display.update()
+            #     logging.debug(f"Updated Frame")
             #     if (fps := clock.get_fps()) != 0:
             #         sync.reset(new_target_time=1_000_000_000/fps)
+            #         print(1_000_000_000/fps)
             #     else:
             #         sync.reset()
 
     @classmethod
-    def init(cls, size: tuple[float, float], title: str, fullscreen = False):
+    def init(cls, size: tuple[float, float], title: str, fullscreen = False, resizeable = False):
 
         pygame.init()   
-        cls.screen = pygame.display.set_mode(size, DOUBLEBUF, 64)
+        cls.screen = pygame.display.set_mode((size[0] * (not fullscreen), size[1] * (not fullscreen)), DOUBLEBUF | resizeable * RESIZABLE | fullscreen * FULLSCREEN , 64)
         pygame.event.set_allowed([QUIT, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d])
-        cls.size = size
+        cls.size = pygame.display.get_surface().get_size()
         pygame.display.set_caption(title)
-
-        #Fill Background
-        cls.background = pygame.Surface(size)
-        cls.background = cls.background.convert()
-        #this is temporary, we will have a bg class
-        cls.background.fill((255,255,255))
-        
     
     @classmethod
     def create_layer(cls, layer_name: str):

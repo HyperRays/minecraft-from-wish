@@ -1,14 +1,14 @@
 from startup import *
 from load_properties_config import load_block_properties
 
-#stored values in variable to reduce typo errors
+# stored values in variable to reduce typo errors
 material_n = "material"
 position_n = "position"
 collider_n = "collider"
 
 class Material:
 
-    #remains for backward compatibility
+    # remains for backward compatibility
     compat_AIR = "Air"
     compat_ICE = "Ice"
     compat_SAND = "Sand"
@@ -17,6 +17,7 @@ class Material:
     compat_WATER = "Water"
     compat_STONE = "Stone"
     compat_SNOW = "Snow"
+    # ---
     
     AIR = 1 << 0
     ICE = 1 << 1
@@ -62,27 +63,45 @@ class Material:
                 pass
             raise TypeError(f"No material called {mat}")
 
-#square helper class, so that the collider creation and image (texture) loading is handled and 
+# square helper class, so that the collider creation and image (texture) loading is handled and 
 class Square(GraphicsObject):
-
+    # with slots, the object doesn't need to make a new dict for every instance
+    # works like a named tuple
+    # https://stackoverflow.com/a/1336890
+    __slots__ = ("position", "texture", "collider","_render_collider_bounds","_render_collision_detected","_first")
     def __init__(self, position: vec2d) -> None:
         self.position = position
         self.texture = texture_handler.get_texture(self.tex_name)
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1])
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
+        # only render once on the intermediate chunk texture for performance reasons (pygame)
+        self._first = True
+        if self.backend == "pygame":
+            self.render = self.pygame_render
     
-    async def render(self):
-        chunk_manager.get_layer().blit(self.texture, camera.screen_position(self.position).into_tuple())
+    def render_collider_bounds(self) -> None:
+        self._render_collider_bounds = True
     
-    async def update(self):
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        if self.render_collider_bounds and not self.render_collision_detected:
+    def render_collision_detected(self) -> None:
+        self._render_collision_detected = True
+
+    async def pygame_render(self, x, y, chunk_intermediate_layer: pygame.Surface):
+        if self._first:
+            self._first = False
+            chunk_intermediate_layer.blit(self.texture, (x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1]))
+
+        if self._render_collider_bounds and not self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
+        elif self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
+    async def update(self):
+        pass
 
     def save(self) -> bytes:
         save_dict = {
@@ -100,33 +119,39 @@ class Square(GraphicsObject):
         self.position = save_dict[position_n]
         self.texture = texture_handler.get_texture(cls.tex_name)
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
+        self._first = True
+        if self.backend == "pygame":
+            self.render = self.pygame_render
 
         return self
 
 #Air tile
 class Air(Square, load_block_properties("air.toml")):
 
+    material = Material.AIR
+
     #Air is transparent so has to have some custom parts defined
 
     def __init__(self, position: vec2d) -> None:
         self.position = position
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
     async def update(self):
         self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        if self.render_collider_bounds and not self.render_collision_detected:
+        if self._render_collider_bounds and not self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
+        if self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
     
-    async def render(self):
-        pass
+    async def render(self, x,y,chunk_intermediate_layer: pygame.Surface):
+        chunk_intermediate_layer.fill((0,0,0,0), Rect(x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1], BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1]))
 
     @classmethod
     def load(cls, b: bytes):
@@ -134,8 +159,8 @@ class Air(Square, load_block_properties("air.toml")):
         save_dict = pickle.loads(b)
         self.position = save_dict[position_n]
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
 
         return self
 
@@ -152,7 +177,6 @@ class Sand(Square, load_block_properties("sand.toml")):
     texture_handler.load_texture(tex_name, "sand_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
     
-
 class Grass(Square, load_block_properties("grass.toml")):
     material = Material.GRASS
     tex_name = "Grass" 
@@ -161,9 +185,9 @@ class Grass(Square, load_block_properties("grass.toml")):
 
     graphics.create_layer("grass_layer")
 
-    async def render(self):
+    # grass should be in front of the player
+    async def pygame_render(self, *_):
         graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
-
 
 class Dirt(Square, load_block_properties("dirt.toml")):
     material = Material.DIRT
@@ -182,7 +206,6 @@ class Snow(Square, load_block_properties("snow.toml")):
     tex_name = "Snow" 
     texture_handler.load_texture(tex_name, "snow_block.png")   
     texture_handler.rescale_image(tex_name, height=BLOCK_DIMENSIONS[0], width=BLOCK_DIMENSIONS[1])
-
 
 #Water is special, because it is animated
 class Water(Square, load_block_properties("water.toml")):
@@ -214,17 +237,41 @@ class Water(Square, load_block_properties("water.toml")):
         self.texture = self.texture1
 
         #create the collider
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
+        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1])
 
         #set the debugging outlines of the collider
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+
+        self._updated = True
+        if self.backend == "pygame":
+            self.render = self.pygame_render
     
-    async def render(self):
+    async def pygame_render(self, x,y,chunk_intermediate_layer: pygame.Surface):
+
+        if self._updated:
+            self._updated = False
+            chunk_intermediate_layer.blit(self.texture, (x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1]))
+
+        #setting the collider outlines and collision boundaries
+        if self._render_collider_bounds and not self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+        if self._render_collision_detected:
+            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
+        
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
+    
+
+    async def update(self):
+        #renew the collider and render the image
+        # self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
+        # self.render()
 
         #after certain time switch the textures
         self.timer.poll()
         if self.timer.reached():
+            self._updated = True
             if self.current_tex == 0:
                 self.current_tex = 1
                 self.texture = self.texture2
@@ -234,22 +281,6 @@ class Water(Square, load_block_properties("water.toml")):
             
             self.timer.reset()
 
-        chunk_manager.get_layer().blit(self.texture, camera.screen_position(self.position).into_tuple())
-    
-
-    async def update(self):
-        #renew the collider and render the image
-        # self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
-        # self.render()
-
-        #setting the collider outlines and collision boundaries
-        if self.render_collider_bounds and not self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
-        if self.render_collision_detected:
-            pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
-        
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
     
     def save(self) -> bytes:
         save_dict = {
@@ -271,12 +302,16 @@ class Water(Square, load_block_properties("water.toml")):
         self.texture1 = texture_handler.get_texture(cls.tex_name1)
         self.texture2 = texture_handler.get_texture(cls.tex_name2)
         self.collider = save_dict[collider_n]
-        self.render_collider_bounds = False
-        self.render_collision_detected = False
+        self._render_collider_bounds = False
+        self._render_collision_detected = False
 
         if self.current_tex == 0:
             self.texture = self.texture1
         else:
             self.texture = self.texture2
+        
+        self._updated = True
+        if self.backend == "pygame":
+            self.render = self.pygame_render
 
         return self
