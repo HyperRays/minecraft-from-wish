@@ -128,14 +128,12 @@ class Player(GraphicsObject, load_player_properties()):
                 self.force.x = 0
 
         self.force.x = self.force.x * self.speed_mutiplier
-        
         # "continuous collision detection" kind of
         displacement = sum(self.furthest_dist.values(), start= vec2d(0,0))
 
         # adds force to player      
         self.position += self.force 
         self.force.y -= displacement.y
-
 
         #finds in which chunk the player is in through the chunk manager
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
@@ -193,7 +191,6 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.left: vec2d(0,0),
             Directions.right: vec2d(0,0)
         }
-
 
         for chunk in self.chunks:
             for x,obj_x in enumerate(chunk.internal_objects):

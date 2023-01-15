@@ -83,5 +83,4 @@ class Mouse(GraphicsObject):
                                 self.chunk.set(vec2d(x,y), Air(obj.position))
 
                         obj.render_collider_bounds()
-
         
