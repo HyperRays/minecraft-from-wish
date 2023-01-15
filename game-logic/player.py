@@ -249,12 +249,12 @@ class Player(GraphicsObject, load_player_properties()):
 
         if keys[self.characters["v"]]:
             print("saving")
-            self.chunk_mgr.save()
+            self.chunk_mgr.save(input("path to file: "))
 
         
         if keys[self.characters["l"]]:
             print("loading")
-            chunk_manager.redefine(ChunkManager.load())
+            chunk_manager.redefine(ChunkManager.load(input("path to file: ")))
 
             #finds in which chunk the player is in through the cunk manager
             true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]

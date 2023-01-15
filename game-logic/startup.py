@@ -10,7 +10,7 @@ import pickle
 
 from helper_functions import *
 # initialize the window
-window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=True)
+window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=False)
 
 texture_handler = TextureHandler()
 

@@ -3,14 +3,13 @@ import os
 from typing import Any
 import pyglet
 
-
 class PygletBackend:
     backend = "pyglet"
     window: pyglet.window.Window | None = None
     size: tuple[float, float] | None = None
 
     # groups are used like layers
-    # https://pyglet.readthedocs.io/en/latest/modules/graphics/index.html
+    # https://pyglet.readthedocs.io/en/latest/modules/graphics/index.html#batches-and-groups
     groups: list[pyglet.graphics.Group] = []
 
     @staticmethod

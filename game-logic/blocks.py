@@ -38,6 +38,7 @@ class Material:
             case Material.WATER: return Water
             case Material.STONE: return Stone
             case Material.SNOW: return Snow
+            case Material.DIRT: return Dirt
     
     @staticmethod
     def __compat_map(material):
@@ -186,7 +187,8 @@ class Grass(Square, load_block_properties("grass.toml")):
     graphics.create_layer("grass_layer")
 
     # grass should be in front of the player
-    async def pygame_render(self, *_):
+    async def pygame_render(self, x,y, chunk_intermediate_layer: pygame.Surface):
+        chunk_intermediate_layer.fill((0,0,0,0), Rect(x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1], BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1]))
         graphics.layers["grass_layer"].blit(self.texture, camera.screen_position(self.position).into_tuple())
 
 class Dirt(Square, load_block_properties("dirt.toml")):

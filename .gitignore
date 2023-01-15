@@ -10,3 +10,5 @@ activate-conda.bat
 
 .DS_Store
 # game-logic/test.world
+
+*.world
