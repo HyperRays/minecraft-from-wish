@@ -5,12 +5,13 @@ import sys
 import os
 from load_config import *
 sys.path.append(os.path.join(os.path.dirname(__file__),".."))
+sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
 #set default of IMPORT_GRAPHICS_LIB to True if not already set
 try: IMPORT_GRAPHICS_LIB
 except: IMPORT_GRAPHICS_LIB = True
 
 if IMPORT_GRAPHICS_LIB:
-    from graphics.graphics_library import GraphicsObject, Image
+    from graphics.graphics_library import GraphicsObject
     import pygame
     from pygame.locals import *
 
@@ -27,5 +28,6 @@ from physics import intersect, quad_quad_intersection, relative_position, Direct
 from camera import Camera, invert_y
 
 from texture_handler import TextureHandler
+from background import *
 
 

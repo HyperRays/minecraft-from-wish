@@ -37,18 +37,6 @@ class TextureHandler:
     # rescale the image to required size
     def rescale_image(self, name, height = None, width = None, factor = None) -> tuple[int, int]: 
         texture = self.get_texture(name)
-        (a,b) = texture.get_size()
-        ratio = a/b
-        if height != None and width != None:
-            (w,h) = width, height
-        if height != None:
-            (w,h) = (height,height/ratio)
-        elif width != None:
-            (w,h) = (width*ratio,width)
-        elif factor != None:
-            (w,h) = (a*factor,b*factor)
-        
-        self.__texture_dict[name] = pygame.transform.scale(self.__texture_dict[name], (w,h))
-        del ratio
+        w,h, self.__texture_dict[name] = graphics._rescale_image(texture, height, width, factor)
         return w,h
 

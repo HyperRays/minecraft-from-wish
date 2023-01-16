@@ -1,5 +1,6 @@
 from startup import *
 from blocks import *
+from player import Player
 class Mouse(GraphicsObject):
 
     graphics.create_layer("mouse_layer")
@@ -12,6 +13,11 @@ class Mouse(GraphicsObject):
     def __init__(self) -> None:
         super().__init__()
         self.collider = Point(vec2d(0,0))
+        for obj in self.objects:
+            if type(obj) == Player:
+                self.player = obj
+
+        self.current_mat = Material.AIR
 
         #hide the cursor
         #https://stackoverflow.com/a/40628090
@@ -26,21 +32,35 @@ class Mouse(GraphicsObject):
         self = cls.__new__(cls)
         self.collider = Point(vec2d(0,0))
 
+        self.current_mat = Material.AIR
+
+        for obj in self.objects:
+            if type(obj) == Player:
+                self.player = obj
+
+
         #hide the cursor
         #https://stackoverflow.com/a/40628090
         pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
         return self
 
     async def render(self):
-        pass
+        #draw in the mouse pointer (we can change this)
+        pygame.draw.circle(self.mouse_layer, (100,200,100), (self.pos.x,-self.pos.y), 5)
+
+        glob_coord = vec2d(self.chunk.position.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], self.chunk.position.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
+        # create the chunk outline (for debugging purposes only)
+        tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
+        pygame.draw.polygon(self.mouse_debug_layer, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
+
     
-    async def input(self, _):
+    async def input(self, key):
         #update all the mouse events (update which keys have been pressed)
         pygame.event.get()
         #get the mouse position and set the pointer (dot) positon
         (x,y) = pygame.mouse.get_pos()
-        pos = vec2d(x,-y)
-        self.collider.a = pos + camera.get_position()
+        self.pos = vec2d(x,-y)
+        self.collider.a = self.pos + camera.get_position()
 
         #get if a mouse button has been pressed
         mouse_down_left = pygame.mouse.get_pressed()[0]
@@ -50,29 +70,38 @@ class Mouse(GraphicsObject):
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
         chunk_coord: vec2d = chunk_manager.find_chunk_pos(self.collider.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height))
-        chunk: Chunk = chunk_manager.get_chunk(chunk_coord)
-        glob_coord = vec2d(chunk.position.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], chunk.position.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
-        
-        #draw in the mouse pointer (we can change this)
-        pygame.draw.circle(self.mouse_layer, (100,200,100), (x,y), 5)
+        self.chunk: Chunk = chunk_manager.get_chunk(chunk_coord)
 
-        # create the chunk outline (for debugging purposes only)
-        tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
-        pygame.draw.polygon(self.mouse_debug_layer, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
+        if key[store.characters["1"]]:
+            self.current_mat = Material.DIRT
+        elif key[store.characters["2"]]:
+            self.current_mat = Material.GRASS
+        elif key[store.characters["3"]]:
+            self.current_mat = Material.ICE
+        elif key[store.characters["4"]]:
+            self.current_mat = Material.SAND
+        elif key[store.characters["5"]]:
+            self.current_mat = Material.SNOW
+        elif key[store.characters["6"]]:
+            self.current_mat = Material.STONE
+        elif key[store.characters["7"]]:
+            self.current_mat = Material.WATER
+        elif key[store.characters["escape"]]:
+            self.current_mat = Material.AIR
 
-        
-        # go through every block in the chunk and find which one the mouse is on
-        for x,obj_x in enumerate(chunk.internal_objects):
-            for y,obj in enumerate(obj_x):
-                if obj != None:
-                    if intersect(self.collider, obj.collider):
-                        obj.render_collision_detected = True
-                        #set the block to something else if the mouse is pressed
-                        if mouse_down_left:
-                            chunk.set(vec2d(x,y), Ice(obj.position))
-                        if mouse_down_right:
-                            chunk.set(vec2d(x,y), Air(obj.position))
+        if not intersect(self.collider, self.player.collider):
+            # go through every block in the chunk and find which one the mouse is on
+            for x,obj_x in enumerate(self.chunk.internal_objects):
+                for y,obj in enumerate(obj_x):
+                    if obj != None:
+                        if intersect(self.collider, obj.collider):
+                            obj.render_collision_detected()
+                            #set the block to something else if the mouse is pressed
+                            if mouse_down_left:
+                                # print(Material.map(self.current_mat), bin(self.current_mat))
+                                self.chunk.set(vec2d(x,y), Material.map(self.current_mat)(obj.position))
+                            if mouse_down_right and obj.mineable:
+                                self.chunk.set(vec2d(x,y), Air(obj.position))
 
-                    obj.render_collider_bounds = True
-
+                        obj.render_collider_bounds()
         

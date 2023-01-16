@@ -25,12 +25,6 @@ class ChunkManager(GraphicsObject):
         self._chunk_dict: dict[vec2d, Chunk] = dict()
         graphics.create_layer(self.chunks_layer)
         graphics.create_layer(self.chunks_debug_layer)
-    
-    def create_chunk(self, chunk: Chunk) -> bool:
-        if chunk.position in self._chunk_dict:
-            return False
-        else:
-            self._chunk_dict.update({chunk.position: chunk})
 
     def chunk_exists(self, pos: vec2d) -> bool:
         return pos in self._chunk_dict
@@ -48,6 +42,7 @@ class ChunkManager(GraphicsObject):
                 if pos in self._chunk_dict:
                     self._renderables += [self._chunk_dict[pos]]
                 else:
+                    pass
                     self.add_chunk(Chunk(pos, terrain_gen_fn))
                     self._renderables += [self._chunk_dict[pos]]
                 
@@ -75,20 +70,21 @@ class ChunkManager(GraphicsObject):
     def set_all(self):
         self._renderables = list(self._chunk_dict.values())
     
-    def save(self):
+    def save(self, path):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
-        with open("test.world", "wb") as f:
+        # will change this after adding gui
+        with open(path, "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def redifine(self, other):
+    def redefine(self, other):
         self._chunk_dict = other._chunk_dict 
         self._renderables = []
 
     @classmethod
-    def load(cls):
+    def load(cls, path: str):
 
         self = cls.__new__(cls)
-        with open("test.world", "rb") as f:
+        with open(path, "rb") as f:
             _chunk_dict_save: dict[vec2d, Chunk] = pickle.load(f)
         self._chunk_dict = dict((key,Chunk.load(item)) for (key,item) in _chunk_dict_save.items())
         self._renderables = []

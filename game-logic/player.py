@@ -33,26 +33,30 @@ class Player(GraphicsObject, load_player_properties()):
 
         #create the collider
         self.collider = create_collider(self.position, self.w, -self.h)
-        self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1])
     
         # the forces that are applied to the player
         self.force = vec2d(0,0)
 
-        # in which direction the player is colliding (bad)
+        # in which direction the player is colliding (needs to be improved)
         self.collided_dir = {
             Directions.up: False,
             Directions.down: False,
             Directions.left: False,
             Directions.right: False
         }
+        
+        self.furthest_dist: dict[Directions, vec2d] = {
+            Directions.up: vec2d(0,0),
+            Directions.down: vec2d(0,0),
+            Directions.left: vec2d(0,0),
+            Directions.right: vec2d(0,0)
+        }
 
         # create window boundaries (so that the chunks can get loaded in and out dynamically)
-        self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], -window.size[1])
+        self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], window.size[1])
         
         # internal refrence to chunk manager
         self.chunk_mgr = chunk_manager
-
-        self.speed_mult = 1
 
     def save(self) -> bytes:
         save_dict = {
@@ -73,7 +77,7 @@ class Player(GraphicsObject, load_player_properties()):
         self.collider = create_collider(self.position, self.w, -self.h)
         
         # create window boundaries (so that the chunks can get loaded in and out dynamically)
-        self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1])
+        self.window_quad = create_collider(camera.get_position(), window.size[0], window.size[1])
     
         # the forces that are applied to the player
         self.force = vec2d(0,0)
@@ -86,12 +90,27 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.right: False
         }
 
+        self.furthest_dist = {
+            Directions.up: vec2d(0,0),
+            Directions.down: vec2d(0,0),
+            Directions.left: vec2d(0,0),
+            Directions.right: vec2d(0,0)
+        }
+
         return self
 
     async def render(self):
         # render the image of the player to the screen accoring to the camera
         self.player_layer.blit(self.texture, camera.screen_position(self.position).into_tuple())
-    
+
+        # draws a outline around the chunk (for debugging purposes only)
+        for chunk in self.chunks:
+            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(chunk.collider.b).into_tuple(), camera.screen_position(chunk.collider.a).into_tuple(), camera.screen_position(chunk.collider.c).into_tuple(), camera.screen_position(chunk.collider.d).into_tuple()], width = 2)
+        
+        # draws the collider around the player (for debugging purposes only)
+        pygame.draw.polygon(self.player_debug_layer, (100,200,140) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+
+
     async def update(self):
 
         # checks in which direction the player is colliding and sets the force in that axis to 0 (bad)
@@ -108,40 +127,43 @@ class Player(GraphicsObject, load_player_properties()):
             if self.force.x < 0:
                 self.force.x = 0
 
-        self.force.x = self.force.x * self.speed_mult
+        self.force.x = self.force.x * self.speed_mutiplier
+        # "continuous collision detection" kind of
+        displacement = sum(self.furthest_dist.values(), start= vec2d(0,0))
 
         # adds force to player      
-        self.position += self.force
-
-        # renews collider
-        self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
+        self.position += self.force 
+        self.force.y -= displacement.y
 
         #finds in which chunk the player is in through the chunk manager
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
 
-        # use the window boundaries to find sout which chunks to update
-        self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1], collider= self.window_quad)
-                   
-        render_boundaries =     (chunk_manager.find_chunk_pos(self.window_quad.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.c + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
-                                )
+        # renews collider
+        if self.force != vec2d(0,0):
+            self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
+
+            # use the window boundaries to find sout which chunks to update
+            self.window_quad = create_collider(camera.get_position(), window.size[0], -window.size[1], collider= self.window_quad)
+                    
+            render_boundaries =     (chunk_manager.find_chunk_pos(self.window_quad.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.c + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
+                                    )
+            
+            # one chunk margin to have smooth transition
+            x_upper_bound = render_boundaries[1].x+1
+            x_lower_bound = render_boundaries[0].x-1
         
-        # one chunk margin to have smooth transition
-        x_upper_bound = render_boundaries[1].x+1
-        x_lower_bound = render_boundaries[0].x-1
-    
-        y_upper_bound = render_boundaries[0].y+1
-        y_lower_bound = render_boundaries[2].y-1
+            y_upper_bound = render_boundaries[0].y+1
+            y_lower_bound = render_boundaries[2].y-1
 
-        bounds_min = vec2d(x_lower_bound, y_lower_bound)
-        bounds_max = vec2d(x_upper_bound,y_upper_bound)
+            bounds_min = vec2d(x_lower_bound, y_lower_bound)
+            bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
-        chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
+            chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
 
-        #padding is added so that player won't go though blocks before chunk is detected 
         chunks_coords: set[vec2d] = set(
             (chunk_manager.find_chunk_pos(self.collider.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
             chunk_manager.find_chunk_pos(self.collider.b + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
@@ -150,17 +172,9 @@ class Player(GraphicsObject, load_player_properties()):
             )
         )
 
-        chunks: list[Chunk] = []
+        self.chunks: list[Chunk] = []
         for chunk_pos in chunks_coords:
-            chunks += [chunk_manager.get_chunk(chunk_pos)]
-       
-        # draws a outline around the chunk (for debugging purposes only)
-        for chunk in chunks:
-            glob_coord = vec2d(chunk.position.x * CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], chunk.position.y * CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1] - BLOCK_DIMENSIONS[1])
-            tmp_outline = create_collider(glob_coord, CHUNK_DIMENSIONS[0] * BLOCK_DIMENSIONS[0], CHUNK_DIMENSIONS[1] * BLOCK_DIMENSIONS[1])
-            pygame.draw.polygon(self.player_debug_layer, (40,150,250) , [ camera.screen_position(tmp_outline.b).into_tuple(), camera.screen_position(tmp_outline.a).into_tuple(), camera.screen_position(tmp_outline.c).into_tuple(), camera.screen_position(tmp_outline.d).into_tuple()], width = 2)
-        # draws the collider around the player (for debugging purposes only)
-        pygame.draw.polygon(self.player_debug_layer, (100,200,140) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
+            self.chunks += [chunk_manager.get_chunk(chunk_pos)]
 
         #resets all the forces
         self.force = vec2d(0,0)
@@ -171,23 +185,37 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.right: False
         }
 
-        
+        self.furthest_dist: dict[Directions, vec2d] = {
+            Directions.up: vec2d(0,0),
+            Directions.down: vec2d(0,0),
+            Directions.left: vec2d(0,0),
+            Directions.right: vec2d(0,0)
+        }
 
-        for chunk in chunks:
+        for chunk in self.chunks:
             for x,obj_x in enumerate(chunk.internal_objects):
                 for y,obj in enumerate(obj_x):
+                        obj.render_collider_bounds()
                         if obj != None and obj.collision:
                             if intersect(self.collider, obj.collider):
+
+                                obj.render_collision_detected()
+
                                 self.speed_mult = obj.speed_mutiplier
+
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
                                 if len(poss) == 0:
+                                    self.force.y += 100
+                                    self.collided_dir[Directions.down] = True
                                     continue
                                 dir = -relative_position(obj.collider, self.collider, list(poss))
-                                self.collided_dir[dir] = True
-                                obj.render_collision_detected = True
 
-                        obj.render_collider_bounds = True
+                                if (ds := self.collider.furthest_in_dir(dir) - obj.collider.furthest_in_dir(-dir)).dot(ds) > (self.furthest_dist[dir].dot(self.furthest_dist[dir])):
+                                    self.furthest_dist[dir] = ds
+
+                                self.collided_dir[dir] = True
+
 
         #adds the gravity force
         self.force += vec2d(0,-GRAVITY_ACCEL)
@@ -210,22 +238,23 @@ class Player(GraphicsObject, load_player_properties()):
         if keys[self.characters["space"]] and self.collided_dir[Directions.down]:
             self.force.y += BLOCK_DIMENSIONS[0]*2
 
-        #todo
-        #https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
+        
+        #TODO - https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
         #updates the camera position, so that the player stays in the center
         camera.update_position(self.position - vec2d(window.size[0]/2,-window.size[1]/2))
 
         #closes the programm (for debugging purposes only)
         if keys[self.characters["e"]]:
-            os.abort()
+            sys.exit()
 
         if keys[self.characters["v"]]:
             print("saving")
-            self.chunk_mgr .save()
+            self.chunk_mgr.save(input("path to file: "))
+
         
         if keys[self.characters["l"]]:
             print("loading")
-            chunk_manager.redifine(ChunkManager.load())
+            chunk_manager.redefine(ChunkManager.load(input("path to file: ")))
 
             #finds in which chunk the player is in through the cunk manager
             true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
