@@ -292,5 +292,11 @@
 <path fill="none" stroke="#000000" stroke-dasharray="5,2" d="M736.4937,-156.4104C641.3042,-142.5926 396.3808,-107.0391 309.8462,-94.4777"/>
 <polygon fill="#000000" stroke="#000000" points="736.1523,-159.8974 746.5514,-157.8704 737.158,-152.97 736.1523,-159.8974"/>
 </g>
+<!-- SoundManager -->
+<g id="node22" class="node">
+<title>SoundManager</title>
+<polygon fill="none" stroke="#000000" points="730.0336,-396 587.9664,-396 587.9664,-360 730.0336,-360 730.0336,-396"/>
+<text text-anchor="middle" x="659" y="-373.8" font-family="Arial" font-size="14.00" fill="#000000">SoundManager WIP</text>
+</g>
 </g>
 </svg>

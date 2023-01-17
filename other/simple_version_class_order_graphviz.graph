@@ -14,7 +14,7 @@ digraph ClassHierearchy{
  
  TextureHandler [shape=box,label="TextureHandler"];
  
- terrain_gen [shape=component, label="terrain_gen (function)", color="turquoise"];
+ terrain_gen [shape=component, label="terrain_gen (function) WIP", color="turquoise"];
  
  Air [shape=box,label="Air"];
  Ice [shape=box,label="Ice"];
@@ -30,18 +30,15 @@ digraph ClassHierearchy{
  
  ChunkManager [shape=box,label="ChunkManager"];
  Chunk [shape=box,label="Chunk"];
- Background [shape=box,label="Background"];
- GUI [shape=box,label="GUI"];
- SoundManager [shape=box,label="SoundManager WIP"];
  
  PygameBackend -> GraphicsObject [style=solid] ;
  
- GraphicsObject -> {Player, Mouse, ChunkManager, Background, GUI, Square, Chunk} [style=solid] ;
+ GraphicsObject -> {Player, Mouse, ChunkManager, Square, Chunk} [style=solid] ;
  
  Physics -> {Player, Mouse} [arrowhead=none] ;
  Camera -> {Player, Square, Mouse} [arrowhead=none] ;
  
- terrain_gen -> Chunk [arrowhead=none] ;
+ terrain_gen -> Chunk [arrowhead=none, style=dotted] ;
  
  TextureHandler -> {Square, Player } [arrowhead=none] ;
  GraphicsObject -> TextureHandler [arrowhead=none, style=dotted];
