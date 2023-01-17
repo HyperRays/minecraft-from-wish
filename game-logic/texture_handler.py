@@ -1,7 +1,7 @@
 """
 This class handles all the image loading from the assets folder, as well as the image serving.
 The purpose of this class is to maintain persistence between world loads and saves, 
-since saving surfaces is not possible due to them being behind ffi bindigs.
+since saving surfaces is not possible due to them being behind ffi bindings.
 """
 
 import pickle

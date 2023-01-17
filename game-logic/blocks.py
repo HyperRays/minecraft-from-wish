@@ -110,6 +110,8 @@ class Square(GraphicsObject):
             position_n: self.position,
             collider_n: self.collider
         }
+    	
+        
 
         return pickle.dumps(save_dict)
     
@@ -138,21 +140,22 @@ class Air(Square, load_block_properties("air.toml")):
 
     def __init__(self, position: vec2d) -> None:
         self.position = position
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1])
+        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1])
         self._render_collider_bounds = False
         self._render_collision_detected = False
     
     async def update(self):
-        self.collider = create_collider(self.position, BLOCK_DIMENSIONS[0], -BLOCK_DIMENSIONS[1], collider=self.collider)
+        pass
+    
+    async def render(self, x,y,chunk_intermediate_layer: pygame.Surface):
+        chunk_intermediate_layer.fill((0,0,0,0), Rect(x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1], BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1]))
+
         if self._render_collider_bounds and not self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (100,100,100) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()], width=1)
         if self._render_collision_detected:
             pygame.draw.polygon(chunk_manager.get_debug_layer(), (200,100,120) , [ camera.screen_position(self.collider.b).into_tuple(), camera.screen_position(self.collider.a).into_tuple(), camera.screen_position(self.collider.c).into_tuple(), camera.screen_position(self.collider.d).into_tuple()] , width=2)
         self._render_collider_bounds = False
         self._render_collision_detected = False
-    
-    async def render(self, x,y,chunk_intermediate_layer: pygame.Surface):
-        chunk_intermediate_layer.fill((0,0,0,0), Rect(x*BLOCK_DIMENSIONS[0], y*BLOCK_DIMENSIONS[1], BLOCK_DIMENSIONS[0], BLOCK_DIMENSIONS[1]))
 
     @classmethod
     def load(cls, b: bytes):
@@ -223,7 +226,7 @@ class Water(Square, load_block_properties("water.toml")):
 
     def __init__(self, position: vec2d) -> None:
         # sets a random time after which it will change to the next tile (it cycles through two tile)
-        self.timer = Timed(7_000_000_00)
+        self.timer = Timed(1_000_000_000)
 
         #set the starting position
         self.position = position
@@ -291,6 +294,8 @@ class Water(Square, load_block_properties("water.toml")):
             "current_tex": self.current_tex,
             collider_n: self.collider
         }
+
+        
 
         return pickle.dumps(save_dict)
 

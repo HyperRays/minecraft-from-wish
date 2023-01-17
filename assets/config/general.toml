@@ -1,4 +1,5 @@
 gravity = 8
+day_night_cycle_time_min = 20
 
 [window]
 height = 700

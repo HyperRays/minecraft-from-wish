@@ -1,0 +1,66 @@
+digraph ClassHierearchy{
+ node [fontname=Arial];
+ edge [fontname=Arial, labeldistance="10"];
+
+ PygameBackend [shape=box,label="PygameBackend"];
+
+ Physics [shape=tab,label="Physics", color="green"];
+ 
+ GraphicsObject [shape=box,label="GraphicsObject"];
+ 
+ Square [shape=box,label="Square"];
+ 
+ Camera [shape=tab,label="Camera", color="green"];
+ 
+ TextureHandler [shape=box,label="TextureHandler"];
+ 
+ Inventory [shape=box,label="Inventory"];
+ 
+ AccelerationController [shape=box,label="AccelerationController"];
+ 
+ AnimationController [shape=box,label="AnimationController"];
+ 
+ TexturePack [shape=box,label="TexturePack"];
+ 
+ EnitySpawner [shape=box,label="EnitySpawner"];
+ 
+ terrain_gen [shape=component, label="terrain_gen (function)", color="turquoise"];
+ 
+ object_placer [shape=component, label="object_placer (function)", color="turquoise"];
+ 
+ Air [shape=box,label="Air"];
+ Ice [shape=box,label="Ice"];
+ Sand [shape=box,label="Sand"];
+ Grass [shape=box,label="Grass"];
+ Dirt [shape=box,label="Dirt"];
+ Stone [shape=box,label="Stone"];
+ Snow [shape=box,label="Snow"];
+ Water [shape=box,label="Water"];
+ Teleporter [shape=box,label="Teleporter"];
+ 
+ Player [shape=box,label="Player"];
+ Mouse [shape=box,label="Mouse"];
+ 
+ ChunkManager [shape=box,label="ChunkManager"];
+ Chunk [shape=box,label="Chunk"];
+ Background [shape=box,label="Background"];
+ GUI [shape=box,label="GUI"];
+ 
+ PygameBackend -> GraphicsObject [style=solid] ;
+ 
+ GraphicsObject -> {Player, Mouse, ChunkManager, Background, GUI, Square, Chunk, Inventory, AccelerationController, EnitySpawner, AnimationController} [style=solid] ;
+ 
+ Physics -> {Player, Mouse} [arrowhead=none] ;
+ Camera -> {Player, Square, Mouse} [arrowhead=none] ;
+ 
+ {terrain_gen,object_placer} -> Chunk [arrowhead=none] ;
+
+ TexturePack -> TextureHandler; 
+ TextureHandler -> {Square, Player} [arrowhead=none] ;
+ GraphicsObject -> TextureHandler [arrowhead=none, style=dotted];
+
+ 
+ ChunkManager -> Chunk -> Square [style=dashed, dir="back"] ;
+ Square -> {Air, Ice, Sand, Grass, Dirt, Stone, Snow, Water, Teleporter} ;
+
+}

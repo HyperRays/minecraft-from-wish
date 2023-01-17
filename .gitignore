@@ -10,3 +10,8 @@ activate-conda.bat
 
 .DS_Store
 # game-logic/test.world
+
+
+*.world
+
+ffmpeg_windows

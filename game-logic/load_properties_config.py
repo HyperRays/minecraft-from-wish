@@ -16,6 +16,7 @@ def load_block_properties(properties_file: str):
             __config_base["properties"].update(__config_properties["properties"])
             __config_properties["properties"] = __config_base["properties"]
 
+
     return type(str(uuid4()), (object, ), __config_properties["properties"])
 
 PLAYER_CONFIG_PATH = "../assets/config/player.toml"

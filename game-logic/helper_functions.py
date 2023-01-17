@@ -15,3 +15,5 @@ def _repr_Directions(dir: Directions) -> str:
         case Directions.down: return "down"
         case Directions.left: return "left"
         case Directions.right: return "right"
+
+def clamp(n, smallest, largest): return max(smallest, min(n, largest))

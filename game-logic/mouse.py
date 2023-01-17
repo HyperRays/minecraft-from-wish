@@ -17,7 +17,7 @@ class Mouse(GraphicsObject):
             if type(obj) == Player:
                 self.player = obj
 
-        self.current_mat = Material.AIR
+        self.current_mat = None
 
         #hide the cursor
         #https://stackoverflow.com/a/40628090
@@ -70,7 +70,10 @@ class Mouse(GraphicsObject):
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
         chunk_coord: vec2d = chunk_manager.find_chunk_pos(self.collider.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height))
-        self.chunk: Chunk = chunk_manager.get_chunk(chunk_coord)
+        try:
+            self.chunk: Chunk = chunk_manager.get_chunk(chunk_coord)
+        except KeyError:
+            pass
 
         if key[store.characters["1"]]:
             self.current_mat = Material.DIRT
@@ -99,7 +102,8 @@ class Mouse(GraphicsObject):
                             #set the block to something else if the mouse is pressed
                             if mouse_down_left:
                                 # print(Material.map(self.current_mat), bin(self.current_mat))
-                                self.chunk.set(vec2d(x,y), Material.map(self.current_mat)(obj.position))
+                                if (mat := Material.map(self.current_mat)) != None:
+                                    self.chunk.set(vec2d(x,y), mat(obj.position))
                             if mouse_down_right and obj.mineable:
                                 self.chunk.set(vec2d(x,y), Air(obj.position))
 

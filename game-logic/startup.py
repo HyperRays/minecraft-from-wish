@@ -9,8 +9,12 @@ from random import randint
 import pickle
 
 from helper_functions import *
+
+
 # initialize the window
 window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=False)
+
+window.size = WINDOW_DIMENSIONS
 
 texture_handler = TextureHandler()
 

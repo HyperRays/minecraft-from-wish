@@ -26,3 +26,4 @@ PLAYER_WIDTH = __config_player["dimensions"]["width"]
 GRAVITY_ACCEL = __config_general["gravity"]
 
 WINDOW_DIMENSIONS = (__config_general["window"]["width"],__config_general["window"]["height"])
+DAY_NIGHT_CYCLE_TIME_MIN = __config_general["day_night_cycle_time_min"]

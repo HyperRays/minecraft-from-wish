@@ -22,6 +22,7 @@ class ChunkManager(GraphicsObject):
     def __init__(self) -> None:
         super().__init__()
         self._renderables = []
+        self._updateables = []
         self._chunk_dict: dict[vec2d, Chunk] = dict()
         graphics.create_layer(self.chunks_layer)
         graphics.create_layer(self.chunks_debug_layer)
@@ -45,6 +46,20 @@ class ChunkManager(GraphicsObject):
                     pass
                     self.add_chunk(Chunk(pos, terrain_gen_fn))
                     self._renderables += [self._chunk_dict[pos]]
+    
+    def set_updateables(self, bounds_min: vec2d, bounds_max: vec2d, terrain_gen_fn: any = None):
+        #pos is the 0,0 value on the screen relative to the global position
+
+        self._updateables = []
+        for x in acending_range(bounds_min.x,bounds_max.x):
+            for y in acending_range(bounds_max.y,bounds_min.y):
+                pos = vec2d(x,y)
+                if pos in self._chunk_dict:
+                    self._updateables += [self._chunk_dict[pos]]
+                else:
+                    pass
+                    self.add_chunk(Chunk(pos, terrain_gen_fn))
+                    self._updateables += [self._chunk_dict[pos]]
                 
     def find_chunk_pos(self, pos: vec2d, size: vec2d) -> vec2d:
         x_chunk_pos = pos.x // size.x
@@ -55,7 +70,7 @@ class ChunkManager(GraphicsObject):
         return self._chunk_dict[pos]
 
     async def update(self):
-        await asyncio.gather(*[renderable.update() for renderable in self._renderables])
+        await asyncio.gather(*[updateable.update() for updateable in self._updateables])
     
     async def render(self):
         await asyncio.gather(*[renderable.render() for renderable in self._renderables])
@@ -73,6 +88,7 @@ class ChunkManager(GraphicsObject):
     def save(self, path):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
         # will change this after adding gui
+        print(len(_chunk_dict_save)*16*16)
         with open(path, "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
 

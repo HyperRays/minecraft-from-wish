@@ -105,11 +105,14 @@ class PygameBackend:
     @classmethod
     def init(cls, size: tuple[float, float], title: str, fullscreen = False, resizeable = False):
 
-        pygame.init()   
-        cls.screen = pygame.display.set_mode((size[0] * (not fullscreen), size[1] * (not fullscreen)), DOUBLEBUF | resizeable * RESIZABLE | fullscreen * FULLSCREEN , 64)
+        pygame.init()  
+        cls.title = title
+        cls.fullscreen = fullscreen
+        cls.resizeable = resizeable 
+        cls.screen = pygame.display.set_mode((size[0] * (not cls.fullscreen), size[1] * (not cls.fullscreen)), DOUBLEBUF | cls.resizeable * RESIZABLE | cls.fullscreen * FULLSCREEN , 64)
         pygame.event.set_allowed([QUIT, pygame.K_w, pygame.K_a, pygame.K_s, pygame.K_d])
         cls.size = pygame.display.get_surface().get_size()
-        pygame.display.set_caption(title)
+        pygame.display.set_caption(cls.title)
     
     @classmethod
     def create_layer(cls, layer_name: str):
@@ -131,7 +134,7 @@ class PygameBackend:
         ratio = a/b
         if height != None and width != None:
             (w,h) = width, height
-        if height != None:
+        elif height != None:
             (w,h) = (height,height/ratio)
         elif width != None:
             (w,h) = (width*ratio,width)

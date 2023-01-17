@@ -5,5 +5,5 @@ height = 32
 width = 16
 
 [properties]
-speed_mutiplier = 1
+speed_multiplier = 1
 jump_multiplier = 1

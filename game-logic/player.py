@@ -20,7 +20,7 @@ class Player(GraphicsObject, load_player_properties()):
     player_debug_layer = graphics.layers["player_debug_layer"]
 
     tex_name = "Player" 
-    texture_handler.load_texture(tex_name, "test_images/hi-res-stickman.png")   
+    texture_handler.load_texture(tex_name, "test_images/batman.png")   
     (w,h) = texture_handler.rescale_image(tex_name, height=PLAYER_HEIGHT, width=PLAYER_WIDTH)
 
     def __init__(self, position: vec2d) -> None:
@@ -60,8 +60,8 @@ class Player(GraphicsObject, load_player_properties()):
 
     def save(self) -> bytes:
         save_dict = {
-            "position": pickle.dumps(self.position),
-            "collider": pickle.dumps(self.collider)
+            "position": self.position,
+            "collider": self.collider
         }
 
         return pickle.dumps(save_dict)
@@ -113,33 +113,40 @@ class Player(GraphicsObject, load_player_properties()):
 
     async def update(self):
 
+        # "continuous collision detection" kind of
+        # displacement = vec2d(0,0)
+        # tmp_displacement = sum(self.furthest_dist.values(), start= vec2d(0,0))
+        # print(tmp_displacement, self.furthest_dist.values())
+
         # checks in which direction the player is colliding and sets the force in that axis to 0 (bad)
         if self.collided_dir[Directions.down]:
             if self.force.y < 0:
+                # displacement.y += (tmp_displacement.y > 0) * tmp_displacement.y
                 self.force.y = 0
         if self.collided_dir[Directions.up]:
             if self.force.y > 0:
+                # displacement.y += (tmp_displacement.y < 0) * tmp_displacement.y
                 self.force.y = 0
         if self.collided_dir[Directions.right]:
             if self.force.x > 0:
+                # displacement.x += tmp_displacement.x
                 self.force.x = 0
         if self.collided_dir[Directions.left]:
             if self.force.x < 0:
+                # displacement.x += tmp_displacement.x
                 self.force.x = 0
 
-        self.force.x = self.force.x * self.speed_mutiplier
-        # "continuous collision detection" kind of
-        displacement = sum(self.furthest_dist.values(), start= vec2d(0,0))
+        self.force.x = self.force.x * self.speed_multiplier
 
-        # adds force to player      
-        self.position += self.force 
-        self.force.y -= displacement.y
+        # adds force to player 
+        
+        self.position += self.force
 
         #finds in which chunk the player is in through the chunk manager
         true_chunksize_width = BLOCK_DIMENSIONS[0] * CHUNK_DIMENSIONS[0]
         true_chunksize_height = BLOCK_DIMENSIONS[1] * CHUNK_DIMENSIONS[1]
 
-        # renews collider
+        # renews collider and updates rendered/updated chunks only on movement
         if self.force != vec2d(0,0):
             self.collider = create_collider(self.position, self.w, -self.h, collider=self.collider)
 
@@ -163,6 +170,7 @@ class Player(GraphicsObject, load_player_properties()):
             bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
             chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
+            chunk_manager.set_updateables(bounds_max, bounds_min, terrain_gen)
 
         chunks_coords: set[vec2d] = set(
             (chunk_manager.find_chunk_pos(self.collider.a + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
@@ -185,13 +193,6 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.right: False
         }
 
-        self.furthest_dist: dict[Directions, vec2d] = {
-            Directions.up: vec2d(0,0),
-            Directions.down: vec2d(0,0),
-            Directions.left: vec2d(0,0),
-            Directions.right: vec2d(0,0)
-        }
-
         for chunk in self.chunks:
             for x,obj_x in enumerate(chunk.internal_objects):
                 for y,obj in enumerate(obj_x):
@@ -201,7 +202,7 @@ class Player(GraphicsObject, load_player_properties()):
 
                                 obj.render_collision_detected()
 
-                                self.speed_mult = obj.speed_mutiplier
+                                self.speed_multiplier = obj.speed_multiplier
 
                                 b = adjacency_bytes(chunk, vec2d(x,y), chunk_manager)
                                 poss = collision_possibile_dir(b)
@@ -211,8 +212,9 @@ class Player(GraphicsObject, load_player_properties()):
                                     continue
                                 dir = -relative_position(obj.collider, self.collider, list(poss))
 
-                                if (ds := self.collider.furthest_in_dir(dir) - obj.collider.furthest_in_dir(-dir)).dot(ds) > (self.furthest_dist[dir].dot(self.furthest_dist[dir])):
-                                    self.furthest_dist[dir] = ds
+                                # _c = (_a := self.collider.furthest_in_dir(dir)).dot(_a) - (_b := obj.collider.furthest_in_dir(-dir)).dot(_b)
+                                # if _c > self.furthest_dist[dir].dot(self.furthest_dist[dir]):
+                                #     self.furthest_dist[dir] = _c
 
                                 self.collided_dir[dir] = True
 
@@ -223,20 +225,20 @@ class Player(GraphicsObject, load_player_properties()):
     async def input(self, keys):
 
         # adds to force and controlls in which direction the player moves
-        if keys[self.characters["s"]]:
+        if keys[store.characters["s"]]:
                 self.force.y -= PLAYER_SPEED
 
         # elif keys[self.characters["w"]]:
         #     self.force.y += PLAYER_SPEED
         
-        if keys[self.characters["d"]]:
+        if keys[store.characters["d"]]:
             self.force.x += PLAYER_SPEED
 
-        elif keys[self.characters["a"]]:
+        elif keys[store.characters["a"]]:
             self.force.x -= PLAYER_SPEED
         
-        if keys[self.characters["space"]] and self.collided_dir[Directions.down]:
-            self.force.y += BLOCK_DIMENSIONS[0]*2
+        if keys[store.characters["space"]] and self.collided_dir[Directions.down]:
+            self.force.y += BLOCK_DIMENSIONS[0]*1.25
 
         
         #TODO - https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
@@ -244,15 +246,22 @@ class Player(GraphicsObject, load_player_properties()):
         camera.update_position(self.position - vec2d(window.size[0]/2,-window.size[1]/2))
 
         #closes the programm (for debugging purposes only)
-        if keys[self.characters["e"]]:
+        if keys[store.characters["e"]]:
             sys.exit()
 
-        if keys[self.characters["v"]]:
+        if keys[store.characters["v"]]:
             print("saving")
             self.chunk_mgr.save(input("path to file: "))
 
+        if keys[store.characters["t"]]:
+            # test saving/loading texture handler
+            print(TextureHandler.load( texture_handler.save() ))
+
+        if keys[store.characters["p"]]:
+            # test saving/loading player
+            print(Player.load( self.save() ))
         
-        if keys[self.characters["l"]]:
+        if keys[store.characters["l"]]:
             print("loading")
             chunk_manager.redefine(ChunkManager.load(input("path to file: ")))
 
@@ -266,13 +275,16 @@ class Player(GraphicsObject, load_player_properties()):
                         chunk_manager.find_chunk_pos(self.window_quad.d + vec2d(0, CHUNK_DIMENSIONS[1]), vec2d(true_chunksize_width, true_chunksize_height)),
                         )
         
-            x_upper_bound = render_boundaries[1].x+1
-            x_lower_bound = render_boundaries[0].x-1
+            margin = 1
         
-            y_upper_bound = render_boundaries[0].y+1
-            y_lower_bound = render_boundaries[2].y-1
+            x_upper_bound = render_boundaries[1].x+margin
+            x_lower_bound = render_boundaries[0].x-margin
+        
+            y_upper_bound = render_boundaries[0].y+margin
+            y_lower_bound = render_boundaries[2].y-margin
 
             bounds_min = vec2d(x_lower_bound, y_lower_bound)
             bounds_max = vec2d(x_upper_bound,y_upper_bound)
 
             chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
+            chunk_manager.set_updateables(bounds_max, bounds_min, terrain_gen)
