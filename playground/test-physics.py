@@ -101,33 +101,47 @@ def test_intersection_points():
 
 #https://pynative.com/python-get-execution-time-of-program/
 # run same code many times to get measurable data
-n = 1000000
-print(f"{bcolors.BOLD}test_intersection(){bcolors.ENDC}")
+n = 10000
+try:
+    print(f"{bcolors.BOLD}test_intersection(){bcolors.ENDC}")
 
-# calculate total execution time
-result = timeit.timeit(stmt='test_intersection()', globals=globals(), number=n)
+    # calculate total execution time
+    result = timeit.timeit(stmt='test_intersection()', globals=globals(), number=n)
 
-# calculate the execution time
-print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
-print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
+    # calculate the execution time
+    print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
+    print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
+except Exception as e:
+    print(type(e).__name__ + ': ' + str(e))
+
+try:
+    print()
+    print(f"{bcolors.BOLD}test_intersection_dist(){bcolors.ENDC}")
+
+    # calculate total execution time
+    result = timeit.timeit(stmt='test_intersection_dist()', globals=globals(), number=n)
+
+    # calculate the execution time
+    print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
+    print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
+
+
+
+except Exception as e:
+    print(type(e).__name__ + ': ' + str(e))
 
 print()
-print(f"{bcolors.BOLD}test_intersection_dist(){bcolors.ENDC}")
 
-# calculate total execution time
-result = timeit.timeit(stmt='test_intersection_dist()', globals=globals(), number=n)
+try:
+    print(f"{bcolors.BOLD}test_intersection_points(){bcolors.ENDC}")
+    # calculate total execution time
+    result = timeit.timeit(stmt='test_intersection_points()', globals=globals(), number=n)
 
-# calculate the execution time
-print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
-print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
-print()
+    # calculate the execution time
+    print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
+    print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
 
-print(f"{bcolors.BOLD}test_intersection_points(){bcolors.ENDC}")
+except Exception as e:
+    print(type(e).__name__ + ': ' + str(e))
 
-# calculate total execution time
-result = timeit.timeit(stmt='test_intersection_points()', globals=globals(), number=n)
-
-# calculate the execution time
-print(f"Execution time is {(result / n) * 10**9} Nanoseconds")
-print(f"Theoretical FPS possible with 1 check: {(1/(result/n))}")
 print()

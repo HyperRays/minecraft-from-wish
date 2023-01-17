@@ -1,0 +1,4 @@
+pygame;python_version=="3.10"
+sounddevice;python_version=="3.10"
+soundfile;python_version=="3.10"
+toml;python_version=="3.10"

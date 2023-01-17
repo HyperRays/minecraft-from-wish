@@ -2,6 +2,13 @@
 
 if __name__ == "__main__":
 
+    from basic_units import bcolors
+    import sys,os
+    path = os.path.join(os.getcwd() , os.path.basename(__file__))
+    print(path, os.path.join("minecraft-from-wish","game-logic","main.py"))
+    if not path.endswith(os.path.join("minecraft-from-wish","game-logic","main.py")):
+        sys.exit(f"please run this file from the {bcolors.BOLD}{bcolors.OKCYAN}minecraft-from-wish/game-logic/main.py{bcolors.ENDC}{bcolors.ENDC} folder")
+
     from blocks import *
     from player import *
     from mouse import *
@@ -9,6 +16,8 @@ if __name__ == "__main__":
     from sound_manager import SoundManager
     from terrain_generation import *
     from random import randint
+
+
 
     # sets the chunks with chunk positions 
     for a in range(-3,3):
@@ -28,7 +37,7 @@ if __name__ == "__main__":
 
     s_mgr.load_sound("../assets/audio/Track_1.1.wav", "track1")
     s_mgr.load_sound("../assets/audio/Track_1.2.wav", "track2")
-    match c:
+    match randint(0,1):
         case 0: s_mgr.play_sound("track1")
         case 1: s_mgr.play_sound("track2")
 

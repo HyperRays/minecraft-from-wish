@@ -5,7 +5,7 @@ import sys
 import os
 from load_config import *
 sys.path.append(os.path.join(os.path.dirname(__file__),".."))
-sys.path.append(os.path.join(os.path.dirname(__file__),'../graphics'))
+sys.path.append(os.path.join(os.path.dirname(__file__),"..","graphics"))
 #set default of IMPORT_GRAPHICS_LIB to True if not already set
 try: IMPORT_GRAPHICS_LIB
 except: IMPORT_GRAPHICS_LIB = True
