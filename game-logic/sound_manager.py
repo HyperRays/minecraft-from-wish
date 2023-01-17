@@ -12,6 +12,7 @@ buffersize = 20
 __q = queue.Queue(maxsize=buffersize)
 __event = threading.Event()
 
+# https://python-sounddevice.readthedocs.io/en/0.4.5/examples.html#play-a-very-long-sound-file
 def _play_sound(file, device = None,blocksize = 2048):
     def callback(outdata, frames, time, status):
         assert frames == blocksize
