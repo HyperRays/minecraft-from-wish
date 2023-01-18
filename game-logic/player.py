@@ -11,6 +11,8 @@ def _repr_Directions(dir: Directions) -> str:
         case Directions.left: return "left"
         case Directions.right: return "right"
 
+input_timer = Timed(5_000_000_00)
+
 class Player(GraphicsObject, load_player_properties()):
 
     graphics.create_layer("player_layer")
@@ -51,6 +53,8 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.left: vec2d(0,0),
             Directions.right: vec2d(0,0)
         }
+
+        self.debug_mode = False
 
         # create window boundaries (so that the chunks can get loaded in and out dynamically)
         self.window_quad = create_collider(camera.get_position() + vec2d(window.size[0]/2,window.size[1]/2), window.size[0], window.size[1])
@@ -96,6 +100,8 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.left: vec2d(0,0),
             Directions.right: vec2d(0,0)
         }
+
+        self.debug_mode = False
 
         return self
 
@@ -223,7 +229,6 @@ class Player(GraphicsObject, load_player_properties()):
         self.force += vec2d(0,-GRAVITY_ACCEL)
 
     async def input(self, keys):
-
         # adds to force and controlls in which direction the player moves
         if keys[store.characters["s"]]:
                 self.force.y -= PLAYER_SPEED
@@ -239,11 +244,6 @@ class Player(GraphicsObject, load_player_properties()):
         
         if keys[store.characters["space"]] and self.collided_dir[Directions.down]:
             self.force.y += BLOCK_DIMENSIONS[0]*1.25
-
-        
-        #TODO - https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
-        #updates the camera position, so that the player stays in the center
-        camera.update_position(self.position - vec2d(window.size[0]/2,-window.size[1]/2))
 
         #closes the programm (for debugging purposes only)
         if keys[store.characters["e"]]:
@@ -288,3 +288,18 @@ class Player(GraphicsObject, load_player_properties()):
 
             chunk_manager.set_renderables(bounds_max, bounds_min, terrain_gen)
             chunk_manager.set_updateables(bounds_max, bounds_min, terrain_gen)
+        
+        input_timer.poll()
+        if input_timer.reached():
+            if keys[store.characters["F3"]]:
+                input_timer.reset()
+                if self.debug_mode:
+                    self.debug_mode = not self.debug_mode
+                    graphics.set_render_layers(["bg","chunks_layer", "player_layer", "grass_layer", "day-night-overlay", "mouse_layer"])
+                else:
+                    self.debug_mode = not self.debug_mode
+                    graphics.set_render_layers(["bg", "chunks_layer",  "player_layer", "grass_layer", "day-night-overlay", "mouse_layer", "chunks_debug", "player_debug_layer", "mouse_debug_layer"])
+
+        #TODO - https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
+        #updates the camera position, so that the player stays in the center
+        camera.update_position(self.position - vec2d(window.size[0]/2,-window.size[1]/2))

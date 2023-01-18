@@ -1,6 +1,6 @@
 ---
 title: Minecraft-from-Wish
-description: Presentation of the game that we made for Informatik
+description: Presentation of the game that we made for Informatik, made with marp
 paginate: true
 marp: true
 theme: uncover
@@ -22,4 +22,9 @@ theme: uncover
 ![width:30px](../assets/images/sand_block.png)
 ![width:30px](../assets/images/dirt_block.png)
 ![width:30px](../assets/images/water_block1.png)
+
 ---
+<!-- _class: invert -->
+![bg contain](../other/class_order_graph.svg)
+
+
