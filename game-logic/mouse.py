@@ -27,7 +27,7 @@ class Mouse(GraphicsObject):
         return bytes(0)
 
     @classmethod
-    def loads(cls, _: bytes):
+    def load(cls, _: bytes):
         
         self = cls.__new__(cls)
         self.collider = Point(vec2d(0,0))
