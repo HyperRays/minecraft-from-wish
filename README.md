@@ -10,4 +10,4 @@ These works may be used interchangeably, but they all refer to the unit object, 
 ---
 ### How to set up
 
-Firstly install the requirements from other/requirements.txt, then run the file main.py under game-logic.py from the game-logic folder.
+Firstly install the requirements from other/requirements.txt, then run the file main.py under game-logic from the game-logic folder.
