@@ -199,7 +199,7 @@ class Player(GraphicsObject, load_player_properties()):
             Directions.right: False
         }
         
-        # go though all objects in the chunks in which the player is in and find out with which on it is colliding with
+        # go though all objects in the chunks in which the player is in and find out with which one it is colliding with
         for chunk in self.chunks:
             for x,obj_x in enumerate(chunk.internal_objects):
                 for y,obj in enumerate(obj_x):
