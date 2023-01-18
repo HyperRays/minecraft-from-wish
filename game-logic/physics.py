@@ -393,7 +393,7 @@ def adjacency_bytes(chunk, pos: vec2d, chunk_mgr):
         for i,r in enumerate(filter_map):
                 p = pos + r
                 val = chunk.get(pos + r)
-                if not (-1 > p.x > 16) or not (-1 > p.y > 16): 
+                if not (-1 > p.x > CHUNK_DIMENSIONS[0]) or not (-1 > p.y > CHUNK_DIMENSIONS[1]): 
                     del val
                     neighbour_chunk_relative_pos = vec2d(x= (p.x > 15) * 1 + (p.x < 0) * -1,
                                                             y= (p.y > 15) * 1 + (p.y < 0) * -1)
