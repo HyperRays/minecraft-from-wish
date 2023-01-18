@@ -1,5 +1,5 @@
 
-
+# you need this here, or otherwise the multiprocessing library spawns a new window
 if __name__ == "__main__":
 
     from basic_units import bcolors

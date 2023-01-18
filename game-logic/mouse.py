@@ -23,11 +23,13 @@ class Mouse(GraphicsObject):
         #https://stackoverflow.com/a/40628090
         pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
 
+    # shouldn't ever be needed
+    #---
     def save(self) -> bytes:
         return bytes(0)
 
     @classmethod
-    def loads(cls, _: bytes):
+    def load(cls, _: bytes):
         
         self = cls.__new__(cls)
         self.collider = Point(vec2d(0,0))
@@ -43,6 +45,8 @@ class Mouse(GraphicsObject):
         #https://stackoverflow.com/a/40628090
         pygame.mouse.set_cursor((8,8),(0,0),(0,0,0,0,0,0,0,0),(0,0,0,0,0,0,0,0))
         return self
+   
+    #---
 
     async def render(self):
         #draw in the mouse pointer (we can change this)

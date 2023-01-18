@@ -18,6 +18,7 @@ class ChunkManager(GraphicsObject):
     chunks_layer = "chunks_layer"
     chunks_debug_layer = "chunks_debug"
     # chunks are stored in a dictonary with keys as the chunk's x,y coordinates
+    # the chunk at the origin has x,y values 0,0, one to the right 1,0 one above 0,1 and vice-versa
     
     def __init__(self) -> None:
         super().__init__()
@@ -48,7 +49,6 @@ class ChunkManager(GraphicsObject):
                     self._renderables += [self._chunk_dict[pos]]
     
     def set_updateables(self, bounds_min: vec2d, bounds_max: vec2d, terrain_gen_fn: any = None):
-        #pos is the 0,0 value on the screen relative to the global position
 
         self._updateables = []
         for x in acending_range(bounds_min.x,bounds_max.x):
@@ -87,7 +87,7 @@ class ChunkManager(GraphicsObject):
     
     def save(self, path):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
-        # will change this after adding gui
+        # print amount of blocks saved
         print(len(_chunk_dict_save)*16*16)
         with open(path, "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
