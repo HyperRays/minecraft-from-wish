@@ -4,6 +4,9 @@ if __name__ == "__main__":
 
     from basic_units import bcolors
     import sys,os
+
+    os.chdir(os.path.dirname(__file__))
+
     path = os.path.join(os.getcwd() , os.path.basename(__file__))
     print(path, os.path.join("minecraft-from-wish","game-logic","main.py"))
     if not path.endswith(os.path.join("minecraft-from-wish","game-logic","main.py")):
