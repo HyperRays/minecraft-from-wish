@@ -49,7 +49,6 @@ class ChunkManager(GraphicsObject):
                     self._renderables += [self._chunk_dict[pos]]
     
     def set_updateables(self, bounds_min: vec2d, bounds_max: vec2d, terrain_gen_fn: any = None):
-        #pos is the 0,0 value on the screen relative to the global position
 
         self._updateables = []
         for x in acending_range(bounds_min.x,bounds_max.x):
