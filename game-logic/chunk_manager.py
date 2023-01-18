@@ -18,6 +18,7 @@ class ChunkManager(GraphicsObject):
     chunks_layer = "chunks_layer"
     chunks_debug_layer = "chunks_debug"
     # chunks are stored in a dictonary with keys as the chunk's x,y coordinates
+    # the chunk at the origin has x,y values 0,0, one to the right 1,0 one above 0,1 and vice-versa
     
     def __init__(self) -> None:
         super().__init__()
