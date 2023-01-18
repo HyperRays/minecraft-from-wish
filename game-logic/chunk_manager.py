@@ -87,7 +87,7 @@ class ChunkManager(GraphicsObject):
     
     def save(self, path):
         _chunk_dict_save = dict((key,item.save()) for (key,item) in self._chunk_dict.items())
-        # will change this after adding gui
+        # pringt amount of blocks saved
         print(len(_chunk_dict_save)*16*16)
         with open(path, "wb") as f:
             pickle.dump(_chunk_dict_save, f, protocol=pickle.HIGHEST_PROTOCOL)
