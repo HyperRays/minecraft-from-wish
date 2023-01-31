@@ -58,7 +58,7 @@ class Material:
         if (cls := Material.map(mat := pickle.loads(b)[material_n])) != None:
             return cls.load(b)
         else:
-            if (cls := Material.__compat_map(mat := pickle.loads(b)[material_n])) != None:
+            if (cls := Material.__compat_map(mat)) != None:
                 return cls.load(b)
             else:
                 pass

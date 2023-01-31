@@ -13,43 +13,46 @@ camera.update_position(vec2d(0,0))
 window.init((500,500), "test physics")
 other = None
 
+Background()
+graphics.create_layer("bg")
+graphics.create_layer("screen")
 
 class static_shape(GraphicsObject):
     def __init__(self, shape) -> None:
         self.shape = shape
         super().__init__()
     
-    def render(self):
+    async def render(self):
         if (result := intersect(self.shape, other.shape, points=True))[0]:
-            pygame.draw.polygon(self.screen, (100,100,100) , [ 
+            pygame.draw.polygon(graphics.layers["screen"], (100,100,100) , [ 
                 camera.screen_position(self.shape.b).into_tuple(), 
                 camera.screen_position(self.shape.a).into_tuple(), 
                 camera.screen_position(self.shape.c).into_tuple()
                 ])
         else:
-            pygame.draw.polygon(self.screen, (100,200,200) , [ 
+            pygame.draw.polygon(graphics.layers["screen"], (100,200,200) , [ 
                 camera.screen_position(self.shape.b).into_tuple(), 
                 camera.screen_position(self.shape.a).into_tuple(), 
                 camera.screen_position(self.shape.c).into_tuple()
                 ])
 
         points = result[2]
-        pygame.draw.line(window.screen, (255, 50, 255), camera.screen_position(points[0]).into_tuple(), camera.screen_position(points[1]).into_tuple())
+        pygame.draw.line(graphics.layers["screen"], (255, 50, 255), camera.screen_position(points[0]).into_tuple(), camera.screen_position(points[1]).into_tuple())
 
     async def update(self):
-        self.render()
+        pass
 
 class static_quad(static_shape):
-    def render(self):
+    async def render(self):
         if (result := intersect(self.shape, other.shape, points=True))[0]:
-            pygame.draw.polygon(self.screen, (100,100,100) , [ 
+            pygame.draw.polygon(graphics.layers["screen"], (100,100,100) , [ 
                 camera.screen_position(self.shape.b).into_tuple(), 
                 camera.screen_position(self.shape.a).into_tuple(), 
                 camera.screen_position(self.shape.c).into_tuple(), 
                 camera.screen_position(self.shape.d).into_tuple()
                 ])
         else:
-            pygame.draw.polygon(self.screen, (100,200,200) , [ 
+            pygame.draw.polygon(graphics.layers["screen"], (100,200,200) , [ 
                 camera.screen_position(self.shape.b).into_tuple(), 
                 camera.screen_position(self.shape.a).into_tuple(), 
                 camera.screen_position(self.shape.c).into_tuple(), 
@@ -57,14 +60,14 @@ class static_quad(static_shape):
                 ])
 
         points = result[2]
-        pygame.draw.line(window.screen, (255, 50, 255), camera.screen_position(points[0]).into_tuple(), camera.screen_position(points[1]).into_tuple())
+        pygame.draw.line(graphics.layers["screen"], (255, 50, 255), camera.screen_position(points[0]).into_tuple(), camera.screen_position(points[1]).into_tuple())
 
 class moveable_shape(static_shape):
     def __init__(self, shape) -> None:
         super().__init__(shape)
     
-    def render(self):
-        pygame.draw.polygon(self.screen, (100,100,100) , [ camera.screen_position(self.shape.b).into_tuple(), camera.screen_position(self.shape.a).into_tuple(), camera.screen_position(self.shape.c).into_tuple()], width = 2)
+    async def render(self):
+        pygame.draw.polygon(graphics.layers["screen"], (100,100,100) , [ camera.screen_position(self.shape.b).into_tuple(), camera.screen_position(self.shape.a).into_tuple(), camera.screen_position(self.shape.c).into_tuple()], width = 2)
 
     async def input(self, keys):
         self.shape.a += vec2d(0,0)
@@ -96,7 +99,7 @@ class mouse(static_shape):
     def __init__(self, shape) -> None:
         super().__init__(shape)
 
-    def render(self):
+    async def render(self):
         pass
     
     async def input(self, _):
@@ -129,6 +132,6 @@ static_quad(shape1q)
 # other = moveable_shape(shape2)
 other = mouse(Point(vec2d(0,0)))
 
-
+window.set_render_layers(["bg", "screen"])
 
 window.run()
