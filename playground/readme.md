@@ -13,4 +13,4 @@ In any case the game was using up many system resources on both devices. We prof
 There were some improvements to be made but still the fps would not go over 30.
 
 We suspect this is due to pygame's nature of using the cpu to render rather than the gpu. Also the fact that python has a GIL forces the
-threads to run in oder than in paralel which is how the program is designed to run (with the chunks being mostly independent).
+threads to run in order than in paralel which is how the program is designed to run (with the chunks being mostly independent).
