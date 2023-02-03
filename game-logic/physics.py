@@ -31,6 +31,7 @@ def normal_dir_origin(A: vec2d, B: vec2d) -> vec2d:
     #(AB x AO) x AB
     return vec3AB.cross(vec3AO).cross(vec3AB).trunc_z()
 
+#using a different collision check than in video (the physics bug was caused by this part)
 #https://blackpawn.com/texts/pointinpoly/
 def triangle_contains_origin(A: vec2d, B: vec2d, C: vec2d) -> tuple[bool, vec2d | None]:
 
