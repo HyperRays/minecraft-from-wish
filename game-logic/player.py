@@ -11,7 +11,7 @@ def _repr_Directions(dir: Directions) -> str:
         case Directions.left: return "left"
         case Directions.right: return "right"
 
-input_timer = Timed(5_000_000_00)
+input_timer = Timed(30_000_000_0)
 
 class Player(GraphicsObject, load_player_properties()):
 
@@ -300,6 +300,8 @@ class Player(GraphicsObject, load_player_properties()):
                 else:
                     self.debug_mode = not self.debug_mode
                     graphics.set_render_layers(["bg", "chunks_layer",  "player_layer", "grass_layer", "day-night-overlay", "mouse_layer", "chunks_debug", "player_debug_layer", "mouse_debug_layer"])
+            
+            input_timer.reset()
 
         #TODO - https://www.gamedeveloper.com/programming/improved-lerp-smoothing-
         #updates the camera position, so that the player stays in the center
