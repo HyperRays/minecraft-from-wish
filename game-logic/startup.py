@@ -12,9 +12,9 @@ from helper_functions import *
 
 
 # initialize the window
-window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=False)
+window.init(WINDOW_DIMENSIONS,"test chunk mgr", fullscreen=True)
 
-window.size = WINDOW_DIMENSIONS
+window.size = window.screen.get_size()
 
 texture_handler = TextureHandler()
 
